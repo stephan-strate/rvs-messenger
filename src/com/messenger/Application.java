@@ -10,7 +10,9 @@ public class Application {
     private ServerThread server;
     private HandleConnectionsThread poke;
 
-    private ArrayDeque<Connection> connections;
+    private ArrayDeque<Connection> connections; 
+    //TODO write mutex for accessing the list, synchronized is not sufficient when
+    //server is adding connections while poke is iterating over the list
 
     public Application(String name, int port) {
         console = new Console(this);

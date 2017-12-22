@@ -1,6 +1,7 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.Socket;
 
 public class Connection {
@@ -11,8 +12,9 @@ public class Connection {
     private Peer peer;
     private Socket socket;
 
-    private RecieverThread reciever; //wenn ein socket == nur eine verbindung, dann hier eigentlich eigener socket
-    private TimerThread timer;
+    private Reciever reciever;
+    private OutputStreamWriter writer;
+    private Timer timer;
 
     public Connection(Peer peer) {
         active = true;
@@ -24,17 +26,19 @@ public class Connection {
             socket = new Socket(peer.adress.getAddress(),
                     peer.adress.getPort());
 
-            reciever = new RecieverThread();
+            reciever = new Reciever();
             reciever.run(app, new BufferedReader(
                     new InputStreamReader(socket.getInputStream())));
+
+            writer = new OutputStreamWriter(socket.getOutputStream(), "UTF-8");
         }
         catch(IOException e) {
-            //TODO add proper description
+            System.err.println("Connection couldn't be initiated properly.");
             e.printStackTrace();
         }
 
         resetLastPoke();
-        timer = new TimerThread();
+        timer = new Timer();
         timer.run(this);
     }
 
@@ -45,7 +49,7 @@ public class Connection {
             socket.close();
         }
         catch(IOException e) {
-            System.out.println("Connection couldn't be terminated properly.");
+            System.err.println("Connection couldn't be terminated properly.");
             e.printStackTrace();
         }
     }
@@ -70,15 +74,21 @@ public class Connection {
         active = false;
     }
 
-    public void sendMessage(String message) {
-        //TODO socket.send()
+    public void sendMessage(Message message) {
+        try {
+            writer.write(message.toString(), 0, message.toString().length());
+        }
+        catch(IOException e){
+            System.err.println("OutputStreamWriter could not send message.");
+            e.printStackTrace();
+        }
     }
 
-    private class RecieverThread extends Thread {
+    private class Reciever extends Thread {
 
         private boolean active;
 
-        public RecieverThread() {
+        public Reciever() {
             active = true;
         }
 
@@ -90,7 +100,7 @@ public class Connection {
                     }
                 }
                 catch(IOException e) {
-                    //TODO add proper description
+                    System.err.println("BufferedReader failed to read the sockets input stream.");
                     e.printStackTrace();
                 }
             }
@@ -101,11 +111,11 @@ public class Connection {
         }
     }
 
-    private class TimerThread extends Thread {
+    private class Timer extends Thread {
 
         private boolean active;
 
-        public TimerThread() {
+        public Timer() {
             active = true;
             lastPoke = System.currentTimeMillis() / 1000L;
         }

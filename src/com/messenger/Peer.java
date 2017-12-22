@@ -9,4 +9,10 @@ public class Peer {
         this.adress = adress;
         this.name = name;
     }
+
+    public boolean equals(Peer peer) {
+        return name == peer.name
+                && adress.getHostName() == peer.adress.getHostName()
+                && adress.getPort() == peer.adress.getPort();
+    }
 }

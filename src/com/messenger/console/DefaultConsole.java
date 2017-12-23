@@ -62,7 +62,7 @@ public class DefaultConsole extends Console {
         // check if no more parameters are given
         if (args[0] == null) {
             // sending DISCONNECT message
-            System.out.println("Trenne Verbindung zu ");
+            System.out.println("Trenne Verbindung.");
             application.exit();
 
             // @TODO: Check if implementation is correct
@@ -100,8 +100,6 @@ public class DefaultConsole extends Console {
     protected void m (String[] args) {
         // check if all parameters are given
         if (args[0] != null && args[1] != null) {
-            System.out.println("Sende Nachricht an alle mit ");
-
             String name = args[0];
 
             // concat message
@@ -113,6 +111,8 @@ public class DefaultConsole extends Console {
             }
 
             String message = stringBuilder.toString();
+
+            System.out.println("Sende Nachricht an alle " + name + ": " + message);
 
             // @TODO: We need send message method that expects name (maybe get peers - multiple peers are possible! - by name) and message
         } else {
@@ -130,8 +130,6 @@ public class DefaultConsole extends Console {
     protected void mx (String[] args) {
         // check if all parameters are given
         if (args[0] != null && args[1] != null && args[2] != null) {
-            System.out.println("Sende Nachricht an ");
-
             try {
                 String ip = args[0];
                 int port = Integer.parseInt(args[1]);
@@ -145,6 +143,8 @@ public class DefaultConsole extends Console {
                 }
 
                 String message = stringBuilder.toString();
+
+                System.out.println("Sende Nachricht an " + ip + ":" + port + ": " + message);
 
                 // @TODO: We need send message method that expects ip, port and message
             } catch (NumberFormatException e) {

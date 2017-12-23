@@ -10,6 +10,7 @@ import com.messenger.Application;
  */
 public class DefaultConsole extends Console {
 
+    // current application
     private Application application;
 
     /**
@@ -34,9 +35,17 @@ public class DefaultConsole extends Console {
     @Method
     protected void connect (String[] args) {
         if (args[0] != null && args[1] != null) {
-            System.out.println("Verbinde mit ");
+            try {
+                String ip = args[0];
+                int port = Integer.parseInt(args[1]);
 
-            // @TODO: add Connection
+                System.out.println("Verbinde mit " + ip + ":" + port);
+
+                // @TODO: We need connect method that expects ip and port
+            } catch (NumberFormatException e) {
+                System.out.println("Der Port muss eine valide Nummer sein.\n" +
+                        "Beispiel: CONNECT 127.0.0.1 6734");
+            }
         } else {
             System.out.println("CONNECT erwartet genau eine IP Adresse und einen Port.\n" +
                     "Beispiel: CONNECT 127.0.0.1 6734");
@@ -55,6 +64,8 @@ public class DefaultConsole extends Console {
             // sending DISCONNECT message
             System.out.println("Trenne Verbindung zu ");
             application.exit();
+
+            // @TODO: Check if implementation is correct
         } else {
             System.out.println("DISCONNECT erwartet keine weiteren Parameter.");
         }
@@ -103,7 +114,7 @@ public class DefaultConsole extends Console {
 
             String message = stringBuilder.toString();
 
-            // @TODO: send message
+            // @TODO: We need send message method that expects name (maybe get peers - multiple peers are possible! - by name) and message
         } else {
             System.out.println("M erwartet genau einen Namen und die Nachricht.\n" +
                     "Beispiel: M Jon Hello World!");
@@ -135,7 +146,7 @@ public class DefaultConsole extends Console {
 
                 String message = stringBuilder.toString();
 
-                // @TODO: send message
+                // @TODO: We need send message method that expects ip, port and message
             } catch (NumberFormatException e) {
                 System.out.println("Der Port muss eine valide Nummer sein.");
             }

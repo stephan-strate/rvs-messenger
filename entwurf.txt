@@ -1,0 +1,52 @@
+Entwurf:
+	-> Application
+		#addConnection
+			-> mit IP und Port (String ip, int port)
+			-> mit IP, Port und Name (String ip, int port, String name)
+
+		#removeConnection
+			-> mit IP und Port (String ip, int port)
+				-> nach IP und Port suchen und Connection entfernen (für Pokes)
+			-> mit Connection (Connection connection)
+				-> Trenne Verbindung zu Connection (für eigenen Disconnect)
+
+		#sendMessage
+			-> mit Name und Nachricht (String name, String message)
+				-> nach Namen suchen und Nachricht mit Peer versenden
+			-> mit IP, Port und Nachricht (String ip, int port, String message)
+				-> nach IP, Port suchen und Nachricht mit Peer versenden
+			-> mit Peer (Peer peer, String message)
+				-> sende Nachricht an Peer
+
+		#exit
+			-> removeConnection auf alle Connections
+
+		#receiveMessage
+			-> handle inputs (poke, disconnect, message)
+
+		%TIMER
+			-> Prozedur durchführen
+				-> Pokes senden (alle 30 Sekunden)
+				-> Aktualisiere Peer Liste (alle 60 Sekunden)
+
+		%SERVER (?)
+
+	-> Connection
+		%RECEIVER
+
+	-> DefaultConsole
+		#connect
+			-> Application#addConnection, Verbindung hinzufügen
+
+		#disconnect
+			-> Application#exit, Alle Verbindungen beenden
+
+		#exit
+			-> DefaultConsole#disconnect, Alle Verbindungen beenden
+			-> Programm beenden
+
+		#m
+			-> Application#sendMessage, Nachricht versenden
+
+		#mx
+			-> Application#sendMessage, Nachricht versenden

@@ -25,16 +25,15 @@ public class Connection {
 
     public void init(Application app) {
         try{
-            socket = new Socket(peer.adress.getAddress(),
-                    peer.adress.getPort());
+            socket = new Socket(peer.getHostName(),
+                    peer.getPort());
 
             reciever = new Reciever();
             reciever.run(app, new BufferedReader(
                     new InputStreamReader(socket.getInputStream())));
 
             writer = new OutputStreamWriter(socket.getOutputStream(), "UTF-8");
-        }
-        catch(IOException e) {
+        } catch(IOException e) {
             System.err.println("Connection couldn't be initiated properly.");
             e.printStackTrace();
         }

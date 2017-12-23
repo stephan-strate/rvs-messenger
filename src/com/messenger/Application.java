@@ -1,7 +1,6 @@
 package com.messenger;
 
 import com.messenger.console.DefaultConsole;
-
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -79,9 +78,9 @@ public class Application {
             case "disconnect":
 
                 String command = "disconnect";
-                String name = sender.name;
-                String ip = sender.adress.getHostName();
-                int port = sender.adress.getPort();
+                String name = sender.getName();
+                String ip = sender.getHostName();
+                int port = sender.getPort();
 
                 Message disconnect = new Message(command, name, ip, port);
                 Connection toRemove = null;
@@ -143,9 +142,9 @@ public class Application {
 
         for(Connection c : connections) {
             String command = "disconnect";
-            String name = c.getPeer().name;
-            String ip = c.getPeer().adress.getHostName();
-            int port = c.getPeer().adress.getPort();
+            String name = c.getPeer().getName();
+            String ip = c.getPeer().getHostName();
+            int port = c.getPeer().getPort();
 
             Message disconnect = new Message(command, name, ip, port);
 
@@ -214,9 +213,9 @@ public class Application {
                         }
 
                         String command = "poke";
-                        String name = c.getPeer().name;
-                        String ip = c.getPeer().adress.getHostName();
-                        int port = c.getPeer().adress.getPort();
+                        String name = c.getPeer().getName();
+                        String ip = c.getPeer().getHostName();
+                        int port = c.getPeer().getPort();
 
                         Message message = new Message(command, name, ip, port);
 

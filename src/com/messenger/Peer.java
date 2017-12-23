@@ -1,3 +1,5 @@
+package com.messenger;
+
 import java.net.InetSocketAddress;
 
 public class Peer {

@@ -1,3 +1,5 @@
+package com.messenger;
+
 public class Message {
 
     private String command;

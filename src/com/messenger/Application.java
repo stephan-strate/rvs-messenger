@@ -1,5 +1,7 @@
 package com.messenger;
 
+import com.messenger.console.DefaultConsole;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -8,7 +10,7 @@ import java.util.ArrayDeque;
 
 public class Application {
 
-    private Console console;
+    private DefaultConsole console;
 
     private Server server;
     private Timer timer;
@@ -17,7 +19,7 @@ public class Application {
     private boolean mutex;
 
     public Application(String name, int port) {
-        console = new Console(this);
+        console = new DefaultConsole(this);
 
         connections = new ArrayDeque<>();
         mutex = false;

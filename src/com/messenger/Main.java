@@ -11,10 +11,8 @@ import com.messenger.console.DefaultConsole;
 public class Main {
 
     public static void main (String[] args) {
-        System.out.println("Hello World!");
+        System.out.println("Messenger wird gestartet.");
 
-        // starting console methods
-        DefaultConsole console = new DefaultConsole();
-        console.start();
+        Application application = new Application("Stephan", 4567);
     }
 }

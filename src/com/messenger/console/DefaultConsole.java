@@ -1,5 +1,7 @@
 package com.messenger.console;
 
+import com.messenger.Application;
+
 /**
  * <p>Default console for rvs-messenger application.
  * We define the text interface methods right here, you
@@ -8,6 +10,22 @@ package com.messenger.console;
  */
 public class DefaultConsole extends Console {
 
+    private Application application;
+
+    /**
+     * <p>Get all methods by calling the super class
+     * and assigning the current application running, used
+     * to send messages, connect to peers and poke them.</p>
+     * @param application   current message application
+     */
+    public DefaultConsole (Application application) {
+        // default functionality
+        super();
+
+        // assigning current application
+        this.application = application;
+    }
+
     /**
      * <p>Sends a POKE message with own name/ip/port to
      * the given peer defined by ip address and port.</p>
@@ -15,7 +33,14 @@ public class DefaultConsole extends Console {
      */
     @Method
     protected void connect (String[] args) {
+        if (args[0] != null && args[1] != null) {
+            System.out.println("Verbinde mit ");
 
+            // @TODO: add Connection
+        } else {
+            System.out.println("CONNECT erwartet genau eine IP Adresse und einen Port.\n" +
+                    "Beispiel: CONNECT 127.0.0.1 6734");
+        }
     }
 
     /**
@@ -25,7 +50,14 @@ public class DefaultConsole extends Console {
      */
     @Method
     protected void disconnect (String[] args) {
-
+        // check if no more parameters are given
+        if (args[0] == null) {
+            // sending DISCONNECT message
+            System.out.println("Trenne Verbindung zu ");
+            application.exit();
+        } else {
+            System.out.println("DISCONNECT erwartet keine weiteren Parameter.");
+        }
     }
 
     /**
@@ -35,11 +67,17 @@ public class DefaultConsole extends Console {
      */
     @Method
     public void exit (String[] args) {
-        // sending DISCONNECT message
-        disconnect(args);
+        // check if no more parameters are given
+        if (args[0] == null) {
+            // sending DISCONNECT message
+            disconnect(args);
 
-        // close client
-        System.exit(0);
+            // close client
+            System.out.println("Messenger wird beendet.");
+            System.exit(0);
+        } else {
+            System.out.println("EXIT erwartet keine weiteren Parameter.");
+        }
     }
 
     /**
@@ -49,7 +87,27 @@ public class DefaultConsole extends Console {
      */
     @Method
     protected void m (String[] args) {
+        // check if all parameters are given
+        if (args[0] != null && args[1] != null) {
+            System.out.println("Sende Nachricht an alle mit ");
 
+            String name = args[0];
+
+            // concat message
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append(args[1]);
+            for (int i = 2; i < args.length; i++) {
+                stringBuilder.append(" ");
+                stringBuilder.append(args[i]);
+            }
+
+            String message = stringBuilder.toString();
+
+            // @TODO: send message
+        } else {
+            System.out.println("M erwartet genau einen Namen und die Nachricht.\n" +
+                    "Beispiel: M Jon Hello World!");
+        }
     }
 
     /**
@@ -59,6 +117,32 @@ public class DefaultConsole extends Console {
      */
     @Method
     protected void mx (String[] args) {
+        // check if all parameters are given
+        if (args[0] != null && args[1] != null && args[2] != null) {
+            System.out.println("Sende Nachricht an ");
+
+            try {
+                String ip = args[0];
+                int port = Integer.parseInt(args[1]);
+
+                // concat message
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.append(args[2]);
+                for (int i = 3; i < args.length; i++) {
+                    stringBuilder.append(" ");
+                    stringBuilder.append(args[i]);
+                }
+
+                String message = stringBuilder.toString();
+
+                // @TODO: send message
+            } catch (NumberFormatException e) {
+                System.out.println("Der Port muss eine valide Nummer sein.");
+            }
+        } else {
+            System.out.println("MX erwartet genau eine IP Adresse, einen Port und die Nachricht.\n" +
+                    "Beispiel: MX 127.0.0.1 6734 Hellow World!");
+        }
 
     }
 }

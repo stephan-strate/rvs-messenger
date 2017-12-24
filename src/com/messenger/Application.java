@@ -64,9 +64,7 @@ public class Application {
     public void receiveMessage (String raw) {
         Message message = new Message(raw);
 
-        Peer sender = new Peer(
-                new InetSocketAddress(message.getIp(), message.getPort()),
-                message.getName());
+        Peer sender = new Peer(message.getIp(), message.getPort(), message.getName());
 
         switch (message.getCommand()) {
             case "POKE": {
@@ -163,7 +161,7 @@ public class Application {
             server.terminate();
             timer.terminate();
 
-            semaphore.acquire();
+            //semaphore.acquire();
             for (Connection c : connections) {
                 String command = "DISCONNECT";
                 String ip = c.getPeer().getHostName();
@@ -174,10 +172,10 @@ public class Application {
                 c.sendMessage(message);
                 c.close();
             }
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
 
         } finally {
-            semaphore.release();
+            //semaphore.release();
         }
     }
 
@@ -204,7 +202,8 @@ public class Application {
         void run (Application app, int port) {
             try {
                 // open server
-                ServerSocket socket = new ServerSocket(port);
+                ServerSocket socket = new ServerSocket();
+                socket.bind(new InetSocketAddress(port));
 
                 while(!_terminate) {
                     // listen for new messages
@@ -213,6 +212,7 @@ public class Application {
                             new InputStreamReader(
                                     client.getInputStream()));
                     app.receiveMessage(in.toString());
+                    socket.close();
                 }
             } catch (IOException e) {
                 System.err.println("Server kann nicht gestartet werden.");

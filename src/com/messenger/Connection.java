@@ -2,6 +2,8 @@ package com.messenger;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 
 public class Connection {
@@ -12,7 +14,7 @@ public class Connection {
     private Peer peer;
     private Socket socket;
 
-    private OutputStreamWriter writer;
+    private PrintWriter writer;
     private Timer timer;
 
     public Connection (Peer peer) {
@@ -22,10 +24,11 @@ public class Connection {
 
     public void init (Application app) {
         try {
-            socket = new Socket(peer.getHostName(),
-                    peer.getPort());
+            System.out.println(peer.getHostName() + " " + peer.getPort());
+            socket = new Socket();
+            socket.connect(new InetSocketAddress(peer.getHostName(), peer.getPort()));
 
-            writer = new OutputStreamWriter(socket.getOutputStream(), "UTF-8");
+            writer = new PrintWriter(socket.getOutputStream(), true);
         } catch (IOException e) {
             System.err.println("Connection couldn't be initiated properly.");
             e.printStackTrace();
@@ -69,7 +72,7 @@ public class Connection {
     public void sendMessage(Message message) {
         try {
             writer.write(message.toString(), 0, message.toString().length());
-        } catch (IOException e){
+        } catch (Exception e){
             System.err.println("OutputStreamWriter could not send message.");
         }
     }

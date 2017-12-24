@@ -37,7 +37,7 @@ public class DefaultConsole extends Console {
      */
     @Method
     protected void connect (String[] args) {
-        if (args[0] != null && args[1] != null) {
+        if (args.length == 2 && args[0] != null && args[1] != null) {
             try {
                 String ip = args[0];
                 int port = Integer.parseInt(args[1]);
@@ -63,7 +63,7 @@ public class DefaultConsole extends Console {
     @Method
     protected void disconnect (String[] args) {
         // check if no more parameters are given
-        if (args[0] == null) {
+        if (args.length == 0 || args[0] == null) {
             // sending DISCONNECT message
             System.out.println("Trenne Verbindung.");
             application.exit();
@@ -80,7 +80,7 @@ public class DefaultConsole extends Console {
     @Method
     public void exit (String[] args) {
         // check if no more parameters are given
-        if (args[0] == null) {
+        if (args.length == 0 || args[0] == null) {
             // sending DISCONNECT message
             disconnect(args);
 
@@ -100,7 +100,7 @@ public class DefaultConsole extends Console {
     @Method
     protected void m (String[] args) {
         // check if all parameters are given
-        if (args[0] != null && args[1] != null) {
+        if (args.length > 1 && args[0] != null && args[1] != null) {
             String name = args[0];
 
             // concat message
@@ -130,7 +130,7 @@ public class DefaultConsole extends Console {
     @Method
     protected void mx (String[] args) {
         // check if all parameters are given
-        if (args[0] != null && args[1] != null && args[2] != null) {
+        if (args.length > 2 && args[0] != null && args[1] != null && args[2] != null) {
             try {
                 String ip = args[0];
                 int port = Integer.parseInt(args[1]);

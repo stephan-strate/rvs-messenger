@@ -1,27 +1,18 @@
 package com.messenger;
 
-import java.net.InetSocketAddress;
-
 public class Peer {
 
-    private final InetSocketAddress address;
+    private String ip;
+    private int port;
     private String name;
 
     public Peer (String ip, int port) {
-        this(new InetSocketAddress(ip, port));
+        this(ip, port, "");
     }
 
     public Peer (String ip, int port, String name) {
-        this(new InetSocketAddress(ip, port), name);
-    }
-
-    public Peer (InetSocketAddress address) {
-        this.address = address;
-        this.name = "";
-    }
-
-    public Peer (InetSocketAddress address, String name) {
-        this.address = address;
+        this.ip = ip;
+        this.port = port;
         this.name = name;
     }
 
@@ -31,16 +22,12 @@ public class Peer {
                 && getPort() == peer.getPort();
     }
 
-    public InetSocketAddress getAddress () {
-        return address;
-    }
-
     public String getHostName () {
-        return address.getHostName();
+        return ip;
     }
 
     public int getPort () {
-        return address.getPort();
+        return port;
     }
 
     public String getName () {

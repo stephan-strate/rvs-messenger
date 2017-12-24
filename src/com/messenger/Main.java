@@ -1,5 +1,7 @@
 package com.messenger;
 
+import com.messenger.console.DefaultConsole;
+
 /**
  * <p>Messenger application.</p>
  * @author Jan-Philip Richter
@@ -27,7 +29,7 @@ public class Main {
 
                 // start application/program
                 System.out.println("Messenger/Peer wird gestartet.");
-                Application application = new Application(name, port);
+                Application application = new Application(port, name);
             } catch (NumberFormatException e) {
                 System.out.println("Der Port muss eine valide Nummer sein.\n" +
                         "Beispiel: messenger.jar Jon 6734");

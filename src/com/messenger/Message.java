@@ -3,51 +3,46 @@ package com.messenger;
 public class Message {
 
     private String command;
-    private String name;
     private String ip;
     private int port;
+    private String name;
     private String text;
 
-    public Message(String command, String name, String ip, int port) {
+    public Message (String command, String ip, int port, String name) {
         this.command = command;
-        this.name = name;
         this.ip = ip;
         this.port = port;
+        this.name = name;
     }
 
-    public Message(String command, String name, String ip, int port, String text) {
-        this(command, name, ip, port);
+    public Message (String command, String ip, int port, String text, String name) {
+        this(command, ip, port, name);
         this.text = text;
     }
 
-    public Message(String rawInput) {
+    public Message (String rawInput) {
         String[] input = rawInput.split(" ");
 
-        if(input.length == 4 || input.length == 5) {
+        if (input.length == 4 || input.length == 5) {
             this.command = input[0];
-            this.name = input[1];
-            this.ip = input[2];
-            this.port = Integer.parseInt(input[3]);
+            this.ip = input[1];
+            this.port = Integer.parseInt(input[2]);
+            this.name = input[3];
 
-            if(input.length == 5) {
-                this.text = text;
+            if (input.length == 5) {
+                this.text = input[4];
             }
-        }
-        else {
+        } else {
             throw new IllegalArgumentException("Invalid number of arguments in " +
                     "input string.");
         }
     }
 
-    public String getCommand() {
+    public String getCommand () {
         return command;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public String getIP() {
+    public String getIp() {
         return ip;
     }
 
@@ -55,23 +50,26 @@ public class Message {
         return port;
     }
 
-    public String getText() {
-        if(text != null) {
+    public String getName() {
+        return name;
+    }
+
+    public String getText () {
+        if (text != null) {
             return text;
-        }
-        else {
+        } else {
             throw new NullPointerException("This message has no text.");
         }
     }
 
     public boolean hasText() {
-        return text == null;
+        return text != null;
     }
 
     @Override
     public String toString() {
-        String message = command + " " + name + " " + ip + " " + port;
-        if(hasText()) {
+        String message = command + " " +  ip + " " + port + " " + name;
+        if (hasText()) {
             message += " " + text;
         }
         return message;

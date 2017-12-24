@@ -1,6 +1,9 @@
 package com.messenger.console;
 
 import com.messenger.Application;
+import com.messenger.Connection;
+import com.messenger.Message;
+import com.messenger.Peer;
 
 /**
  * <p>Default console for rvs-messenger application.
@@ -41,7 +44,7 @@ public class DefaultConsole extends Console {
 
                 System.out.println("Verbinde mit " + ip + ":" + port);
 
-                // @TODO: We need connect method that expects ip and port
+                application.addConnection(new Connection(new Peer(ip, port)));
             } catch (NumberFormatException e) {
                 System.out.println("Der Port muss eine valide Nummer sein.\n" +
                         "Beispiel: CONNECT 127.0.0.1 6734");
@@ -64,8 +67,6 @@ public class DefaultConsole extends Console {
             // sending DISCONNECT message
             System.out.println("Trenne Verbindung.");
             application.exit();
-
-            // @TODO: Check if implementation is correct
         } else {
             System.out.println("DISCONNECT erwartet keine weiteren Parameter.");
         }
@@ -145,6 +146,7 @@ public class DefaultConsole extends Console {
                 String message = stringBuilder.toString();
 
                 System.out.println("Sende Nachricht an " + ip + ":" + port + ": " + message);
+                application.sendMessage(new Peer(ip, port), new Message("MESSAGE", ip, port, "test", message));
 
                 // @TODO: We need send message method that expects ip, port and message
             } catch (NumberFormatException e) {

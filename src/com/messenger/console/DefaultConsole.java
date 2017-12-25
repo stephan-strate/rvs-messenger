@@ -45,8 +45,6 @@ public class DefaultConsole extends Console {
                 String ip = args[0];
                 int port = Integer.parseInt(args[1]);
 
-                System.out.println("Verbinde mit " + ip + ":" + port);
-
                 application.addConnection(new Peer(ip, port));
             } catch (NumberFormatException e) {
                 System.out.println("Der Port muss eine valide Nummer sein.\n" +

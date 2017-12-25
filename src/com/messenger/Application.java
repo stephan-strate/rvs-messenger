@@ -21,18 +21,18 @@ public class Application {
     private Semaphore semaphore;
 
     public Application (int port, String name) {
-        // init a console associated with this application
-        DefaultConsole console = new DefaultConsole(this);
-        console.start();
-
         connections = new LinkedBlockingDeque<>();
         semaphore = new Semaphore(1, true);
 
-        server = new Server();
-        server.run(this, port);
+        server = new Server(this, port);
+        server.start();
 
-        timer = new Timer();
-        timer.run(this);
+        timer = new Timer(this);
+        timer.start();
+
+        // init a console associated with this application
+        DefaultConsole console = new DefaultConsole(this);
+        console.start();
     }
 
     public synchronized void addConnection (Connection c) {
@@ -193,19 +193,26 @@ public class Application {
     private class Server extends Thread {
 
         private boolean _terminate = false;
+        private Application app;
+        private int port;
+
+        Server (Application app, int port) {
+            this.app = app;
+            this.port = port;
+        }
 
         /**
          * <p></p>
-         * @param app   application
-         * @param port  port to listen on
          */
-        void run (Application app, int port) {
+        @Override
+        public void run () {
             try {
                 // open server
                 ServerSocket socket = new ServerSocket();
                 socket.bind(new InetSocketAddress(port));
 
                 while(!_terminate) {
+                    System.out.println("Server executed.");
                     // listen for new messages
                     Socket client = socket.accept();
                     BufferedReader in = new BufferedReader(
@@ -237,16 +244,26 @@ public class Application {
 
         private boolean _terminate = false;
         private long timestamp = System.currentTimeMillis()/1000L;
+        private Application app;
+
+        /**
+         * <p></p>
+         * @param app
+         */
+        Timer (Application app) {
+            this.app = app;
+        }
 
         /**
          * <p>Procedure that executes every 30 seconds and
          * updates the peer list of application.</p>
-         * @param app   application to update
          */
-        void run (Application app) {
+        @Override
+        public void run () {
             while (!_terminate) {
                 // execute procedure every 30 seconds
                 if (timestamp + 30 < System.currentTimeMillis()/1000L) {
+                    System.out.println("Timer executed.");
                     try {
                         // init buffer, to store inactive peers
                         ArrayDeque<Connection> buffer = new ArrayDeque<>();

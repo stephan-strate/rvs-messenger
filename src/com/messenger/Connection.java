@@ -1,7 +1,6 @@
 package com.messenger;
 
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -35,8 +34,8 @@ public class Connection {
         }
 
         resetLastPoke();
-        timer = new Timer();
-        timer.run(this);
+        timer = new Timer(this);
+        timer.start();
     }
 
     public void close () {
@@ -71,7 +70,7 @@ public class Connection {
 
     public void sendMessage(Message message) {
         try {
-            writer.write(message.toString(), 0, message.toString().length());
+            writer.print(message.toString());
         } catch (Exception e){
             System.err.println("OutputStreamWriter could not send message.");
         }
@@ -80,12 +79,15 @@ public class Connection {
     private class Timer extends Thread {
 
         private boolean _terminate = false;
+        private Connection con;
 
-        Timer () {
+        Timer (Connection con) {
             lastPoke = System.currentTimeMillis() / 1000L;
+            this.con = con;
         }
 
-        void run (Connection con) {
+        @Override
+        public void run () {
             while (!_terminate) {
                 if (con.getLastPoke() + 60 < System.currentTimeMillis()/1000L) {
                     con.setInactive();

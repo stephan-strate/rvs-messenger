@@ -56,7 +56,7 @@ public class Connection {
             socket = new Socket();
             socket.connect(new InetSocketAddress(peer.getHostName(), peer.getPort()));
 
-            writer = new PrintWriter(socket.getOutputStream());
+            writer = new PrintWriter(socket.getOutputStream(), true);
 
             resetLastPoke();
 
@@ -79,11 +79,8 @@ public class Connection {
     }
 
     public void sendMessage (Message message) {
-        try {
-            writer.print(message.toString());
-        } catch (Exception e){
-            System.err.println("OutputStreamWriter could not send message.");
-        }
+        writer.println(message.toString());
+        writer.flush();
     }
 
     public void resetLastPoke () {

@@ -66,18 +66,18 @@ public class Application {
 
     /**
      * <p></p>
-     * @param peer
+     * @param peer  peer to add
      */
-    public synchronized void addConnection (Peer peer) {
+    public void addConnection (Peer peer) {
         // add new connection to peer list
         connections.add(new Connection(peer));
     }
 
     /**
      * <p></p>
-     * @param c
+     * @param c connection to remove
      */
-    public synchronized void removeConnection (Connection c) {
+    public void removeConnection (Connection c) {
         // closing given connection
         c.close();
 
@@ -86,24 +86,36 @@ public class Application {
     }
 
     /**
-     * <p></p>
-     * @param input
+     * <p>Handles messages the server receives.
+     * Forwards POKE and DISCONNECT messages and
+     * prints MESSAGE messages.</p>
+     * @param input raw input message
      */
     public void receiveMessage (String input) {
         // generating message from input string
         Message message = new Message(input);
 
         // behaviour by command
+        statement:
         switch (message.getCommand()) {
             case "POKE": {
+                // check if peer is already in peer list
                 for (Connection c : connections) {
                     if (c.getPeer().equals(message.getPeer())) {
+                        // reset last poke time
                         c.resetLastPoke();
-                        break;
+                        // end switch statement
+                        break statement;
                     }
                 }
 
-                // @TODO: Add peer to list
+                // forward message to whole peer list
+                for (Connection c : connections) {
+                    c.sendMessage(message);
+                }
+
+                // add peer to peer list
+                connections.add(new Connection(message.getPeer()));
                 break;
             }
 
@@ -111,12 +123,15 @@ public class Application {
                 String command = "DISCONNECT";
                 Message disconnect = new Message(command, message.getPeer());
 
+                // check if peer is in peer list
                 for (Connection c : connections) {
                     if (c.getPeer().equals(message.getPeer())) {
+                        // remove him from peer list
                         removeConnection(c);
 
+                        // forward disconnect message to all peers
                         for (Connection g : connections) {
-                            sendMessage(g.getPeer(), disconnect);
+                            g.sendMessage(disconnect);
                         }
                     }
                 }
@@ -125,9 +140,8 @@ public class Application {
             }
 
             case "MESSAGE": {
-                System.out.println("Message received.");
+                // show received message
                 System.out.println(message.toString());
-                // @TODO: Handle messages
                 break;
             }
 
@@ -169,6 +183,10 @@ public class Application {
         }
     }
 
+    /**
+     * <p>Gets {@link Application#connections}.</p>
+     * @return  {@link Application#connections}
+     */
     public CopyOnWriteArrayList<Connection> getConnections () {
         return connections;
     }
@@ -178,10 +196,27 @@ public class Application {
      */
     private class Server extends Thread {
 
+        /**
+         * <p>Status of thread.</p>
+         */
         private boolean _terminate = false;
+
+        /**
+         * <p>Application the server should work on.</p>
+         */
         private Application app;
+
+        /**
+         * <p>Port the server is listening on.</p>
+         */
         private int port;
 
+        /**
+         * <p>Creates a server with an application and
+         * the port it should listen on.</p>
+         * @param app   application
+         * @param port  listening port
+         */
         Server (Application app, int port) {
             this.app = app;
             this.port = port;
@@ -198,14 +233,12 @@ public class Application {
                 socket.bind(new InetSocketAddress(port));
 
                 while(!_terminate) {
-                    System.out.println("Server executed.");
+                    System.out.println("Warte auf neue Anfrage.");
                     // listen for new messages
                     Socket client = socket.accept();
-                    BufferedReader in = new BufferedReader(
-                            new InputStreamReader(
-                                    client.getInputStream()));
-                    app.receiveMessage(in.toString());
-                    socket.close();
+                    System.out.println("Anfrage erfolgreich angenommen.");
+                    ClientHandler clientHandler = new ClientHandler(client, app);
+                    clientHandler.start();
                 }
             } catch (IOException e) {
                 System.err.println("Server kann nicht gestartet werden.");
@@ -218,6 +251,46 @@ public class Application {
          */
         void terminate () {
             _terminate = true;
+        }
+    }
+
+    /**
+     * <p></p>
+     */
+    private class ClientHandler extends Thread {
+
+        /**
+         * <p></p>
+         */
+        private Socket socket;
+
+        /**
+         * <p></p>
+         */
+        private Application app;
+
+        /**
+         * <p></p>
+         * @param socket
+         * @param app
+         */
+        ClientHandler (Socket socket, Application app) {
+            this.socket = socket;
+            this.app = app;
+        }
+
+        /**
+         * <p></p>
+         */
+        @Override
+        public void run () {
+            try {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                app.receiveMessage(reader.readLine());
+                socket.close();
+            } catch (IOException e) {
+                System.out.println("");
+            }
         }
     }
 

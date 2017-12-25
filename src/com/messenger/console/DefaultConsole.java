@@ -13,7 +13,10 @@ import com.messenger.Peer;
  */
 public class DefaultConsole extends Console {
 
-    // current application
+    /**
+     * <p>Current application, the console
+     * runs in.</p>
+     */
     private Application application;
 
     /**
@@ -44,7 +47,7 @@ public class DefaultConsole extends Console {
 
                 System.out.println("Verbinde mit " + ip + ":" + port);
 
-                application.addConnection(new Connection(new Peer(ip, port)));
+                application.addConnection(new Peer(ip, port));
             } catch (NumberFormatException e) {
                 System.out.println("Der Port muss eine valide Nummer sein.\n" +
                         "Beispiel: CONNECT 127.0.0.1 6734");

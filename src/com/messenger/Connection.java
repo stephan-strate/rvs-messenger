@@ -5,37 +5,67 @@ import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
+/**
+ * <p></p>
+ */
 public class Connection {
 
-    private boolean active;
+    /**
+     * <p>Status of the connection, is updated every
+     * 60 seconds by timer class.</p>
+     */
+    private boolean active = true;
+
+    /**
+     * <p>Timestamp of last poke received by this
+     * connection.</p>
+     */
     private long lastPoke;
 
-    private Peer peer;
-    private Socket socket;
-
-    private PrintWriter writer;
+    /**
+     * <p>Timer procedure is executed every 60 seconds
+     * and updates the status.</p>
+     */
     private Timer timer;
 
-    public Connection (Peer peer) {
-        active = true;
-        this.peer = peer;
-    }
+    /**
+     * <p>Ip address, port and name of this connection
+     * or peer.</p>
+     */
+    private Peer peer;
 
-    public void init (Application app) {
+    /**
+     * <p>Socket of this connection.</p>
+     */
+    private Socket socket;
+
+    /**
+     * <p>Writer to communicate with the peer, created
+     * from socket.</p>
+     */
+    private PrintWriter writer;
+
+    /**
+     * <p></p>
+     * @param peer
+     */
+    public Connection (Peer peer) {
+        this.peer = peer;
+
         try {
-            System.out.println(peer.getHostName() + " " + peer.getPort());
             socket = new Socket();
             socket.connect(new InetSocketAddress(peer.getHostName(), peer.getPort()));
 
-            writer = new PrintWriter(socket.getOutputStream(), true);
+            writer = new PrintWriter(socket.getOutputStream());
+
+            resetLastPoke();
+
+            timer = new Timer(this);
+            timer.start();
         } catch (IOException e) {
             System.err.println("Connection couldn't be initiated properly.");
             e.printStackTrace();
         }
-
-        resetLastPoke();
-        timer = new Timer(this);
-        timer.start();
     }
 
     public void close () {
@@ -48,32 +78,32 @@ public class Connection {
         }
     }
 
-    public Peer getPeer() {
-        return peer;
-    }
-
-    public long getLastPoke() {
-        return lastPoke;
-    }
-
-    public void resetLastPoke() {
-        lastPoke = System.currentTimeMillis()/1000L;
-    }
-
-    public boolean isInactive() {
-        return !active;
-    }
-
-    public void setInactive() {
-        active = false;
-    }
-
-    public void sendMessage(Message message) {
+    public void sendMessage (Message message) {
         try {
             writer.print(message.toString());
         } catch (Exception e){
             System.err.println("OutputStreamWriter could not send message.");
         }
+    }
+
+    public void resetLastPoke () {
+        lastPoke = System.currentTimeMillis()/1000L;
+    }
+
+    public void setInactive () {
+        active = false;
+    }
+
+    public boolean isInactive () {
+        return !active;
+    }
+
+    public long getLastPoke () {
+        return lastPoke;
+    }
+
+    public Peer getPeer () {
+        return peer;
     }
 
     private class Timer extends Thread {

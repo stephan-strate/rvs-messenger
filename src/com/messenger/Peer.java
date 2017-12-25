@@ -7,8 +7,19 @@ package com.messenger;
  */
 public class Peer {
 
+    /**
+     * <p>Ip address for this peer.</p>
+     */
     private String ip;
+
+    /**
+     * <p>Port for this peer.</p>
+     */
     private int port;
+
+    /**
+     * <p>Name of this peer.</p>
+     */
     private String name;
 
     /**
@@ -19,7 +30,7 @@ public class Peer {
      * @param port  port
      */
     public Peer (String ip, int port) {
-        this(ip, port, "");
+        this(ip, port, null);
     }
 
     /**
@@ -54,7 +65,16 @@ public class Peer {
      */
     @Override
     public String toString () {
-        return name + "@" + ip + ":" + port;
+        return (name != null ? name + " " : "") + ip + " " + port;
+    }
+
+    /**
+     * <p>Checking if this peer has a name assigned,
+     * returns {@code true} if so.</p>
+     * @return  has peer name
+     */
+    public boolean hasName () {
+        return name != null;
     }
 
     /**
@@ -78,7 +98,11 @@ public class Peer {
      * @return  {@link Peer#name}
      */
     public String getName () {
-        return name;
+        if (name != null) {
+            return name;
+        } else {
+            throw new NullPointerException("This peer has no name.");
+        }
     }
 
     /**

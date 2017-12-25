@@ -1,7 +1,5 @@
 package com.messenger;
 
-import com.messenger.console.DefaultConsole;
-
 /**
  * <p>Messenger application.</p>
  * @author Jan-Philip Richter
@@ -28,7 +26,6 @@ public class Main {
                 int port = Integer.parseInt(args[1]);
 
                 // start application/program
-                System.out.println("Messenger/Peer wird gestartet.");
                 Application application = new Application(port, name);
             } catch (NumberFormatException e) {
                 System.out.println("Der Port muss eine valide Nummer sein.\n" +

@@ -1,0 +1,27 @@
+Offene Aufgaben für Klassen:        STATUS              AUFGABEN
+com.messenger
+    console
+        - Console                   Abgeschlossen       -
+        - DefaultConsole            Offen               Verbinde Funktionalität von Application mit DefaultConsole
+        - Method                    Abgeschlossen       -
+
+    - Application                   Offen               grundlegende Funktionalität gegeben, Methoden fertigstellen, Kommentare
+    - Connection                    Offen               Threads organisieren, grundlegende Funktionalität gegeben, Kommentare
+    - Message                       Offen               evtl. mit Peer verbinden (?), sodass eine Message einen Peer enthält, Kommentare
+    - Peer                          Abgeschlossen       -
+    - Main                          Abgeschlossen       -
+
+
+Aktuelle Probleme:
+    - Wenn man versucht sich mit einem anderen Client zu verbinden, kommt es zu einem Connection Timeout.
+        -> Struktur nochmal durchgehen und alle Fehler beheben, den Ablauf überprüfen, mit Aufgabenstellung abgleichen
+
+Aktueller Plan:
+    - von einfach zu schwer
+        -> erst die simplen Klassen fertigstellen, danach mit fertigen Grundbausteinen, Fehler in Hauptklassen beheben
+
+        - Peer, Fertig
+        - Message, noch mit Peer verknüpfen
+        - Connection
+        - Application
+        - DefaultConsole (muss ggf. zwischendurch zum Testen angepasst werden)

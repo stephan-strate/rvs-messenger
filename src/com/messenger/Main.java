@@ -28,15 +28,15 @@ public class Main {
                 // start application/program
                 Application application = new Application(port, name);
             } catch (NumberFormatException e) {
-                System.out.println("Der Port muss eine valide Nummer sein.\n" +
-                        "Beispiel: messenger.jar Jon 6734");
+                System.err.println("Fatal Error: Port must be a valid number.\n" +
+                        "Example: messenger.jar Jon 6734");
 
                 // terminate application with errors
                 System.exit(1);
             }
         } else {
-            System.out.println("Es muss genau ein Name und ein valider Port übergebn werden.\n" +
-                    "Beispiel: messenger.jar Jon 6734");
+            System.err.println("Fatal Error: You need to parse a name and a valid port number.\n" +
+                    "Example: messenger.jar Jon 6734");
 
             // terminate application with errors
             System.exit(1);

@@ -82,12 +82,13 @@ public class Message {
      * @param rawInput
      */
     public Message (String rawInput) {
+        System.out.println(rawInput);
         try {
             String[] input = rawInput.split(" ");
 
-            if (input.length > 4) {
+            if (input.length > 3) {
                 this.command = input[0];
-                this.peer = new Peer(input[1], Integer.parseInt(input[2]), input[3]);
+                this.peer = new Peer(input[2], Integer.parseInt(input[3]), input[1]);
 
                 if (input.length > 5) {
                     // concat message

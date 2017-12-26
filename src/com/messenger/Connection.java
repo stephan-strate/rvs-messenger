@@ -58,12 +58,12 @@ public class Connection {
         this.peer = peer;
 
         try {
-            System.out.println("Verbinde mit " + peer.getHostName() + ":" + peer.getPort());
+            System.out.println("Connecting with " + peer.getHostName() + ":" + peer.getPort() + ".");
 
             // connect with peer
             socket = new Socket();
             socket.connect(new InetSocketAddress(peer.getHostName(), peer.getPort()));
-            System.out.println("Verbindung zu " + peer.getHostName() + ":" + peer.getPort() + " aufgebaut.");
+            System.out.println("Successfully connected with " + peer.getHostName() + ":" + peer.getPort() + ".");
 
             // start writer, to send messages
             writer = new PrintWriter(socket.getOutputStream(), true);
@@ -72,9 +72,19 @@ public class Connection {
             timer = new Timer(this);
             timer.start();
         } catch (IOException e) {
-            System.err.println("Connection couldn't be initiated properly.");
+            System.err.println("Error: Connection couldn't be initiated properly.");
             e.printStackTrace();
         }
+    }
+
+    /**
+     * <p></p>
+     * @param application
+     */
+    public void poke (Application application) {
+        Message me = new Message("POKE", application.me);
+        System.out.println("Sending: " + me.toString());
+        sendMessage(me);
     }
 
     /**
@@ -89,7 +99,7 @@ public class Connection {
             // close socket connection
             socket.close();
         } catch (IOException e) {
-            System.err.println("Connection couldn't be terminated properly.");
+            System.err.println("Error: Connection couldn't be terminated properly.");
         }
     }
 
@@ -176,12 +186,18 @@ public class Connection {
         @Override
         public void run () {
             while (!_terminate) {
-                // last poke was 60+ seconds ago
-                if (con.getLastPoke() + 60 < System.currentTimeMillis()/1000L) {
-                    // declare connection as inactive
-                    con.setInactive();
-                    // terminate thread
-                    terminate();
+                try {
+                    // last poke was 60+ seconds ago
+                    if (con.getLastPoke() + 60 < System.currentTimeMillis()/1000L) {
+                        // declare connection as inactive
+                        con.setInactive();
+                        // terminate thread
+                        terminate();
+                    }
+
+                    sleep(60000);
+                } catch (InterruptedException e) {
+                    System.err.println("Error: Thread interrupted.");
                 }
             }
         }

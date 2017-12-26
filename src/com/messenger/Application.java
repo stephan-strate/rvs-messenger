@@ -34,7 +34,7 @@ public class Application {
     /**
      * <p>Represents the own server.</p>
      */
-    private Peer me;
+    public Peer me;
 
     /**
      * <p></p>
@@ -44,7 +44,8 @@ public class Application {
     public Application (int port, String name) {
         try  {
             // init own peer
-            me = new Peer(InetAddress.getLocalHost().getHostName(), port, name);
+            me = new Peer(InetAddress.getLocalHost().getHostAddress(), port, name);
+            System.out.println("You: " + me.toString());
             // init peer list
             connections = new CopyOnWriteArrayList<>();
 
@@ -60,17 +61,8 @@ public class Application {
             DefaultConsole console = new DefaultConsole(this);
             console.start();
         } catch (UnknownHostException e) {
-            System.out.println("Can not get own ip address.");
+            System.err.println("Fatal Error: Can not get own ip address.");
         }
-    }
-
-    /**
-     * <p></p>
-     * @param peer  peer to add
-     */
-    public void addConnection (Peer peer) {
-        // add new connection to peer list
-        connections.add(new Connection(peer));
     }
 
     /**
@@ -94,6 +86,7 @@ public class Application {
     public void receiveMessage (String input) {
         // generating message from input string
         Message message = new Message(input);
+        System.out.println("Receiving: " + input);
 
         // behaviour by command
         statement:
@@ -120,9 +113,6 @@ public class Application {
             }
 
             case "DISCONNECT": {
-                String command = "DISCONNECT";
-                Message disconnect = new Message(command, message.getPeer());
-
                 // check if peer is in peer list
                 for (Connection c : connections) {
                     if (c.getPeer().equals(message.getPeer())) {
@@ -131,7 +121,7 @@ public class Application {
 
                         // forward disconnect message to all peers
                         for (Connection g : connections) {
-                            g.sendMessage(disconnect);
+                            g.sendMessage(message);
                         }
                     }
                 }
@@ -147,7 +137,7 @@ public class Application {
 
             default: {
                 throw new IllegalStateException("Valid command expected, but "
-                        +message.getCommand()+ " found instead.");
+                        + message.getCommand()+ " found instead.");
             }
         }
     }
@@ -160,6 +150,7 @@ public class Application {
     public void sendMessage (Peer peer, Message message) {
         for (Connection c : connections) {
             if (c.getPeer().equals(peer)) {
+                System.out.println("Sending message " + message.toString() + " to " + c.getPeer().toString());
                 c.sendMessage(message);
                 break;
             }
@@ -171,14 +162,29 @@ public class Application {
 
     /**
      * <p></p>
+     * @param name      name to send message to
+     * @param message   message
+     */
+    public void sendMessagesByName (String name, Message message) {
+        for (Connection c : connections) {
+            if (c.getPeer().getName().equals(name)) {
+                System.out.println("Sending message " + message.toString() + " to " + c.getPeer().toString());
+                c.sendMessage(message);
+            }
+        }
+    }
+
+    /**
+     * <p></p>
      */
     public void exit () {
         server.terminate();
         timer.terminate();
+        System.out.println("Shutdown all servers.");
 
         for (Connection c : connections) {
-            Message message = new Message("DISCONNECT", c.getPeer());
-            c.sendMessage(message);
+            System.out.println("Sending DISCONNECT message to " + c.getPeer().toString());
+            c.sendMessage(new Message("DISCONNECT", me));
             c.close();
         }
     }
@@ -232,16 +238,16 @@ public class Application {
                 ServerSocket socket = new ServerSocket();
                 socket.bind(new InetSocketAddress(port));
 
-                while(!_terminate) {
-                    System.out.println("Warte auf neue Anfrage.");
+                while (!_terminate) {
+                    System.out.println("SERVER: Waiting for new request.");
                     // listen for new messages
                     Socket client = socket.accept();
-                    System.out.println("Anfrage erfolgreich angenommen.");
+                    System.out.println("SERVER: Request accepted.");
                     ClientHandler clientHandler = new ClientHandler(client, app);
                     clientHandler.start();
                 }
             } catch (IOException e) {
-                System.err.println("Server kann nicht gestartet werden.");
+                System.err.println("Fatal Error: Can not start server.");
             }
         }
 
@@ -301,8 +307,14 @@ public class Application {
      */
     private class Timer extends Thread {
 
+        /**
+         * <p></p>
+         */
         private boolean _terminate = false;
-        private long timestamp = System.currentTimeMillis()/1000L;
+
+        /**
+         * <p></p>
+         */
         private Application app;
 
         /**
@@ -320,33 +332,29 @@ public class Application {
         @Override
         public void run () {
             while (!_terminate) {
-                // execute procedure every 30 seconds
-                if (timestamp + 30 < System.currentTimeMillis()/1000L) {
-                    System.out.println("Timer executed.");
+                try {
+                    System.out.println("TIMER: Executed.");
                     // init buffer, to store inactive peers
                     ArrayDeque<Connection> buffer = new ArrayDeque<>();
 
                     // iterate peer list
                     for (Connection c : app.getConnections()) {
+                        System.out.println("PEER: " + c.getPeer().toString());
                         if (c.isInactive()) {
                             // add inactive peers to buffer
                             buffer.add(c);
                         } else {
-                            // poke active peers
-                            String command = "POKE";
-                            String ip = c.getPeer().getHostName();
-                            int port = c.getPeer().getPort();
-                            String name = c.getPeer().getName();
-
-                            Message message = new Message(command, ip, port, name);
-                            c.sendMessage(message);
+                            c.poke(app);
                         }
                     }
 
                     // remove all inactive peers from peer list
                     app.getConnections().removeAll(buffer);
-                    // track new timestamp
-                    timestamp = System.currentTimeMillis()/1000L;
+
+                    // execute procedure every 30 seconds
+                    sleep(30000);
+                } catch (InterruptedException e) {
+                    System.err.println("Error: Thread interrupted.");
                 }
             }
         }

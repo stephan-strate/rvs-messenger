@@ -45,10 +45,11 @@ public class DefaultConsole extends Console {
                 String ip = args[0];
                 int port = Integer.parseInt(args[1]);
 
-                application.addConnection(new Peer(ip, port));
+                // send a poke request to peer
+                new Connection(new Peer(ip, port)).poke(application);
             } catch (NumberFormatException e) {
-                System.out.println("Der Port muss eine valide Nummer sein.\n" +
-                        "Beispiel: CONNECT 127.0.0.1 6734");
+                System.out.println("Error: Port must be a valid number.\n" +
+                        "Example: CONNECT 127.0.0.1 6734");
             }
         } else {
             System.out.println("CONNECT erwartet genau eine IP Adresse und einen Port.\n" +
@@ -66,10 +67,9 @@ public class DefaultConsole extends Console {
         // check if no more parameters are given
         if (args.length == 0 || args[0] == null) {
             // sending DISCONNECT message
-            System.out.println("Trenne Verbindung.");
             application.exit();
         } else {
-            System.out.println("DISCONNECT erwartet keine weiteren Parameter.");
+            System.err.println("Error: DISCONNECT does not expect arguments.");
         }
     }
 
@@ -86,10 +86,10 @@ public class DefaultConsole extends Console {
             disconnect(args);
 
             // close client
-            System.out.println("Messenger wird beendet.");
+            System.out.println("Closing messenger.");
             System.exit(0);
         } else {
-            System.out.println("EXIT erwartet keine weiteren Parameter.");
+            System.err.println("Error: EXIT does not expect arguments.");
         }
     }
 
@@ -114,12 +114,11 @@ public class DefaultConsole extends Console {
 
             String message = stringBuilder.toString();
 
-            System.out.println("Sende Nachricht an alle " + name + ": " + message);
-
-            // @TODO: We need send message method that expects name (maybe get peers - multiple peers are possible! - by name) and message
+            // preparing message and sending it to all name
+            application.sendMessagesByName(name, new Message("MESSAGE", application.me, message));
         } else {
-            System.out.println("M erwartet genau einen Namen und die Nachricht.\n" +
-                    "Beispiel: M Jon Hello World!");
+            System.err.println("M does expect a name and a message.\n" +
+                    "Example: M Jon Hello World!");
         }
     }
 
@@ -146,17 +145,22 @@ public class DefaultConsole extends Console {
 
                 String message = stringBuilder.toString();
 
-                System.out.println("Sende Nachricht an " + ip + ":" + port + ": " + message);
-                application.sendMessage(new Peer(ip, port), new Message("MESSAGE", ip, port, "test", message));
-
-                // @TODO: We need send message method that expects ip, port and message
+                // preparing message and sending it to peer
+                application.sendMessage(new Peer(ip, port), new Message("MESSAGE", application.me, message));
             } catch (NumberFormatException e) {
-                System.out.println("Der Port muss eine valide Nummer sein.");
+                System.err.println("Error: Port must be a valid number.");
             }
         } else {
-            System.out.println("MX erwartet genau eine IP Adresse, einen Port und die Nachricht.\n" +
-                    "Beispiel: MX 127.0.0.1 6734 Hellow World!");
+            System.err.println("Error: MX expects an ip address, a port and a message.\n" +
+                    "Example: MX 127.0.0.1 6734 Hello World!");
         }
+    }
 
+    @Method
+    protected void printConnections (String[] args) {
+        System.out.println("Printing all connections:");
+        for (Connection c : application.getConnections()) {
+            System.out.println(c.getPeer().toString());
+        }
     }
 }

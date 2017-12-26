@@ -6,7 +6,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.*;
 import java.util.ArrayDeque;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * <p></p>
@@ -29,7 +31,7 @@ public class Application {
      * <p>Peer list, that contains all active
      * (maybe inactive) connections with peers.</p>
      */
-    private CopyOnWriteArrayList<Connection> connections;
+    private List<Connection> connections;
 
     /**
      * <p>Represents the own server.</p>
@@ -42,12 +44,13 @@ public class Application {
      * @param name  own name
      */
     public Application (int port, String name) {
-        try  {
+        try {
             // init own peer
             me = new Peer(InetAddress.getLocalHost().getHostAddress(), port, name);
             System.out.println("You: " + me.toString());
-            // init peer list
-            connections = new CopyOnWriteArrayList<>();
+            // init synchronized peer list
+            List<Connection> prepare = new ArrayList<>();
+            connections = Collections.synchronizedList(prepare);
 
             // run server
             server = new Server(this, port);
@@ -95,6 +98,7 @@ public class Application {
                 // check if peer is already in peer list
                 for (Connection c : connections) {
                     if (c.getPeer().equals(message.getPeer())) {
+                        System.out.println("FOUND PEER IN LIST!");
                         // reset last poke time
                         c.resetLastPoke();
                         // end switch statement
@@ -108,7 +112,9 @@ public class Application {
                 }
 
                 // add peer to peer list
-                connections.add(new Connection(message.getPeer()));
+                Connection newPeer = new Connection(message.getPeer());
+                newPeer.poke(this);
+                connections.add(newPeer);
                 break;
             }
 
@@ -193,7 +199,7 @@ public class Application {
      * <p>Gets {@link Application#connections}.</p>
      * @return  {@link Application#connections}
      */
-    public CopyOnWriteArrayList<Connection> getConnections () {
+    public List<Connection> getConnections () {
         return connections;
     }
 
@@ -239,10 +245,8 @@ public class Application {
                 socket.bind(new InetSocketAddress(port));
 
                 while (!_terminate) {
-                    System.out.println("SERVER: Waiting for new request.");
                     // listen for new messages
                     Socket client = socket.accept();
-                    System.out.println("SERVER: Request accepted.");
                     ClientHandler clientHandler = new ClientHandler(client, app);
                     clientHandler.start();
                 }

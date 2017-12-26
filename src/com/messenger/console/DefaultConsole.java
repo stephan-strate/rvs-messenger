@@ -157,7 +157,7 @@ public class DefaultConsole extends Console {
     }
 
     @Method
-    protected void printConnections (String[] args) {
+    protected void print (String[] args) {
         System.out.println("Printing all connections:");
         for (Connection c : application.getConnections()) {
             System.out.println(c.getPeer().toString());

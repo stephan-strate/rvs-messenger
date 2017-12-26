@@ -58,12 +58,9 @@ public class Connection {
         this.peer = peer;
 
         try {
-            System.out.println("Connecting with " + peer.getHostName() + ":" + peer.getPort() + ".");
-
             // connect with peer
             socket = new Socket();
             socket.connect(new InetSocketAddress(peer.getHostName(), peer.getPort()));
-            System.out.println("Successfully connected with " + peer.getHostName() + ":" + peer.getPort() + ".");
 
             // start writer, to send messages
             writer = new PrintWriter(socket.getOutputStream(), true);
@@ -83,7 +80,7 @@ public class Connection {
      */
     public void poke (Application application) {
         Message me = new Message("POKE", application.me);
-        System.out.println("Sending: " + me.toString());
+        System.out.println("Sending POKE to " + peer.toString());
         sendMessage(me);
     }
 
@@ -109,7 +106,6 @@ public class Connection {
      */
     public void sendMessage (Message message) {
         writer.println(message.toString());
-        writer.flush();
     }
 
     /**

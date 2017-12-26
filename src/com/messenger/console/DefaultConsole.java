@@ -45,14 +45,14 @@ public class DefaultConsole extends Console {
                 String ip = args[0];
                 int port = Integer.parseInt(args[1]);
 
-                // send a poke request to peer
+                // send a poke request to peer without adding it to peer list
                 new Connection(new Peer(ip, port)).poke(application);
             } catch (NumberFormatException e) {
-                System.out.println("Error: Port must be a valid number.\n" +
+                throw new IllegalArgumentException("Error: Port must be a valid number.\n" +
                         "Example: CONNECT 127.0.0.1 6734");
             }
         } else {
-            System.out.println("CONNECT erwartet genau eine IP Adresse und einen Port.\n" +
+            throw new IllegalArgumentException("CONNECT erwartet genau eine IP Adresse und einen Port.\n" +
                     "Beispiel: CONNECT 127.0.0.1 6734");
         }
     }
@@ -69,7 +69,7 @@ public class DefaultConsole extends Console {
             // sending DISCONNECT message
             application.exit();
         } else {
-            System.err.println("Error: DISCONNECT does not expect arguments.");
+            throw new IllegalArgumentException("Error: DISCONNECT does not expect arguments.");
         }
     }
 
@@ -89,7 +89,7 @@ public class DefaultConsole extends Console {
             System.out.println("Closing messenger.");
             System.exit(0);
         } else {
-            System.err.println("Error: EXIT does not expect arguments.");
+            throw new IllegalArgumentException("Error: EXIT does not expect arguments.");
         }
     }
 
@@ -117,7 +117,7 @@ public class DefaultConsole extends Console {
             // preparing message and sending it to all name
             application.sendMessagesByName(name, new Message("MESSAGE", application.me, message));
         } else {
-            System.err.println("M does expect a name and a message.\n" +
+            throw new IllegalArgumentException("M does expect a name and a message.\n" +
                     "Example: M Jon Hello World!");
         }
     }
@@ -148,19 +148,21 @@ public class DefaultConsole extends Console {
                 // preparing message and sending it to peer
                 application.sendMessage(new Peer(ip, port), new Message("MESSAGE", application.me, message));
             } catch (NumberFormatException e) {
-                System.err.println("Error: Port must be a valid number.");
+                throw new IllegalArgumentException("Error: Port must be a valid number.");
             }
         } else {
-            System.err.println("Error: MX expects an ip address, a port and a message.\n" +
+            throw new IllegalArgumentException("Error: MX expects an ip address, a port and a message.\n" +
                     "Example: MX 127.0.0.1 6734 Hello World!");
         }
     }
 
+    /**
+     * <p>Documentation method with hopefully helping tips,
+     * to work with this application.</p>
+     * @param args  expecting HELP [optional (String) method]
+     */
     @Method
-    protected void print (String[] args) {
-        System.out.println("Printing all connections:");
-        for (Connection c : application.getConnections()) {
-            System.out.println(c.getPeer().toString());
-        }
+    protected void help (String[] args) {
+        
     }
 }

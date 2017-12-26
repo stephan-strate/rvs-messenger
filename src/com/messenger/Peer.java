@@ -65,7 +65,7 @@ public class Peer {
      */
     @Override
     public String toString () {
-        return (name != null ? name + " " : "") + ip + " " + port;
+        return (hasName() ? name + " " : "") + ip + " " + port;
     }
 
     /**
@@ -101,7 +101,7 @@ public class Peer {
         if (name != null) {
             return name;
         } else {
-            throw new NullPointerException("This peer has no name.");
+            throw new NullPointerException("Error: The peer " + ip + ":" + port + " has no name.");
         }
     }
 

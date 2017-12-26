@@ -1,7 +1,11 @@
 package com.messenger;
 
 /**
- * <p></p>
+ * <p>Represents a message that can be send as a
+ * string (for example by sockets) and parsed into
+ * an object again. It contains a type (represented by
+ * command), a peer (mostly where its coming from) and
+ * eventually a text.</p>
  */
 public class Message {
 
@@ -24,52 +28,57 @@ public class Message {
     private String text;
 
     /**
-     * <p></p>
-     * @param command
-     * @param ip
-     * @param port
-     * @param name
-     * @param text
+     * <p>Creates a message with command, ip, port, name
+     * and text.</p>
+     * @param command   command
+     * @param ip        ip address
+     * @param port      port
+     * @param name      client name
+     * @param text      text
      */
     public Message (String command, String ip, int port, String name, String text) {
         this(command, new Peer(ip, port, name), text);
     }
 
     /**
-     * <p></p>
-     * @param command
-     * @param ip
-     * @param port
-     * @param text
+     * <p>Creates a message with command, ip, port and text.
+     * Client name is missing in this constructor.</p>
+     * @param command   command
+     * @param ip        ip address
+     * @param port      port
+     * @param text      text
      */
     public Message (String command, String ip, int port, String text) {
         this(command, new Peer(ip, port), text);
     }
 
     /**
-     * <p></p>
-     * @param command
-     * @param ip
-     * @param port
+     * <p>Creates a message with command, ip and port.
+     * Client name and text is missing in this constructor.</p>
+     * @param command   command
+     * @param ip        ip address
+     * @param port      port
      */
     public Message (String command, String ip, int port) {
         this(command, new Peer(ip, port), null);
     }
 
     /**
-     * <p></p>
-     * @param command
-     * @param peer
+     * <p>Creates a message with command and peer.
+     * Text is missing in this constructor.</p>
+     * @param command   command
+     * @param peer      peer (ip, port, name)
      */
     public Message (String command, Peer peer) {
         this(command, peer, null);
     }
 
     /**
-     * <p></p>
-     * @param command
-     * @param peer
-     * @param text
+     * <p>Creates a message with command, peer and
+     * text.</p>
+     * @param command   command
+     * @param peer      peer (ip, port, name)
+     * @param text      text
      */
     public Message (String command, Peer peer, String text) {
         this.command = command;
@@ -78,12 +87,13 @@ public class Message {
     }
 
     /**
-     * <p></p>
-     * @param rawInput
+     * <p>Creates a message out of a raw message, that
+     * was created by {@link Message#toString()} before.</p>
+     * @param rawInput  raw input of {@link Message#toString()}
      */
     public Message (String rawInput) {
-        System.out.println(rawInput);
         try {
+            // splitting string at whitespace
             String[] input = rawInput.split(" ");
 
             if (input.length > 3) {
@@ -102,22 +112,26 @@ public class Message {
                     this.text = stringBuilder.toString();
                 }
             } else {
-                throw new IllegalArgumentException("Invalid number of arguments in " +
+                throw new IllegalArgumentException("Error: Invalid number of arguments in " +
                         "input string.");
             }
         } catch (NumberFormatException e) {
-            System.out.println("Port must be a number.");
+            throw new IllegalArgumentException("Error: Port must be a valid number.");
         }
     }
 
     /**
-     * <p></p>
-     * @return
+     * <p>Concat all attributes to one single string.
+     * Defined convention, to parse string back with
+     * {@link Message#Message(String)}.</p>
+     * @return  all attributes
      */
     @Override
     public String toString () {
+        // concat command and peer
         String message = command + " " +  peer.toString();
         if (hasText()) {
+            // add text, when available
             message += " " + text;
         }
 
@@ -125,62 +139,40 @@ public class Message {
     }
 
     /**
-     * <p></p>
-     * @return
+     * <p>Checking if {@link Message} has a
+     * text available.</p>
+     * @return  is {@link Message#text} not null
      */
     public boolean hasText () {
         return text != null;
     }
 
     /**
-     * <p></p>
-     * @return
+     * <p>Gets {@link Message#command}.</p>
+     * @return  {@link Message#command}
      */
     public String getCommand () {
         return command;
     }
 
     /**
-     * <p></p>
-     * @return
+     * <p>Gets {@link Message#peer}.</p>
+     * @return  {@link Message#peer}
      */
     public Peer getPeer () {
         return peer;
     }
 
     /**
-     * <p></p>
-     * @return
-     */
-    public String getHostName () {
-        return peer.getHostName();
-    }
-
-    /**
-     * <p></p>
-     * @return
-     */
-    public int getPort () {
-        return peer.getPort();
-    }
-
-    /**
-     * <p></p>
-     * @return
-     */
-    public String getName () {
-        return peer.getName();
-    }
-
-    /**
-     * <p></p>
-     * @return
+     * <p>Gets {@link Message#text} when it is not
+     * null.</p>
+     * @return  {@link Message#text}
      */
     public String getText () {
         if (text != null) {
             return text;
         } else {
-            throw new NullPointerException("This message has no text.");
+            throw new NullPointerException("Error: Message " + toString() + " has no text.");
         }
     }
 }

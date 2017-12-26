@@ -269,6 +269,8 @@ public class Application {
      */
     private class ClientHandler extends Thread {
 
+        private boolean _terminate = false;
+
         /**
          * <p></p>
          */
@@ -296,11 +298,20 @@ public class Application {
         public void run () {
             try {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                app.receiveMessage(reader.readLine());
+                while (!_terminate) {
+                    app.receiveMessage(reader.readLine());
+                }
                 socket.close();
             } catch (IOException e) {
                 System.out.println("");
             }
+        }
+
+        /**
+         * <p></p>
+         */
+        public void terminate () {
+            _terminate = true;
         }
     }
 

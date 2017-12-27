@@ -243,4 +243,28 @@ public class DefaultConsole extends Console {
             throw new IllegalArgumentException("Error: HELP expects no or one argument.");
         }
     }
+
+    /**
+     * <p>Iterates the current peer list. You can fetch by name
+     * or just print all peers.</p>
+     * @param args  expecting PEERS [optional (String) name]
+     */
+    @Method
+    protected void peers (String[] args) {
+        if (args.length == 0) {
+            int index = 1;
+            for (Connection c : application.getConnections()) {
+                System.out.println((index++) + ": " + c.getPeer().toString());
+            }
+        } else if (args.length == 1) {
+            int index = 1;
+            for (Connection c : application.getConnections()) {
+                if (c.getPeer().getName().equals(args[0])) {
+                    System.out.println((index++) + ": " + c.getPeer().toString());
+                }
+            }
+        } else {
+            throw new IllegalArgumentException("Error: PEERS expects no or one argument.");
+        }
+    }
 }

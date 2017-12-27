@@ -69,18 +69,17 @@ public class Connection {
             timer = new Timer(this);
             timer.start();
         } catch (IOException e) {
-            System.err.println("Error: Connection couldn't be initiated properly.");
-            e.printStackTrace();
+            throw new NullPointerException("Error: Connection couldn't be initiated properly.");
         }
     }
 
     /**
-     * <p></p>
-     * @param application
+     * <p>Sending a poke to this connection
+     * with my own peer data.</p>
+     * @param application   application
      */
     public void poke (Application application) {
         Message me = new Message("POKE", application.me);
-        System.out.println("Sending POKE to " + peer.toString());
         sendMessage(me);
     }
 
@@ -96,7 +95,7 @@ public class Connection {
             // close socket connection
             socket.close();
         } catch (IOException e) {
-            System.err.println("Error: Connection couldn't be terminated properly.");
+            throw new NullPointerException("Error: Connection couldn't be terminated properly.");
         }
     }
 
@@ -193,7 +192,7 @@ public class Connection {
 
                     sleep(60000);
                 } catch (InterruptedException e) {
-                    System.err.println("Error: Thread interrupted.");
+                    throw new NullPointerException("Error: Thread interrupted.");
                 }
             }
         }

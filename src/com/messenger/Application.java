@@ -5,13 +5,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.*;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
- * <p></p>
+ * <p>Represents the main application. Here we start our server,
+ * receiving new messages, take care of our peer list and providing
+ * the console functions. Everything is started in
+ * {@link Application#Application(int, String)}.</p>
  */
 public class Application {
 
@@ -39,15 +39,21 @@ public class Application {
     public Peer me;
 
     /**
-     * <p></p>
+     * <p>Main constructor of whole application. Peer list gets
+     * initiated, Server and Timer are started and the console
+     * is started.</p>
      * @param port  own port
      * @param name  own name
      */
     public Application (int port, String name) {
         try {
+            // fetch external ip address
+            URL getMyIp = new URL("http://checkip.amazonaws.com");
+            BufferedReader in = new BufferedReader(new InputStreamReader(getMyIp.openStream()));
+
             // init own peer
-            me = new Peer(InetAddress.getLocalHost().getHostAddress(), port, name);
-            System.out.println("You: " + me.toString());
+            me = new Peer(in.readLine(), port, name);
+            /* LOCAL DEBUG */ me = new Peer(InetAddress.getLocalHost().getHostAddress(), port, name); /* LOCAL DEBUG END */
             // init synchronized peer list
             List<Connection> prepare = new ArrayList<>();
             connections = Collections.synchronizedList(prepare);
@@ -60,16 +66,21 @@ public class Application {
             timer = new Timer(this);
             timer.start();
 
+            System.out.println("> [" + new Date().toString() + "] You are logged in as " + name + " and listening on " + me.getHostName() + ":" + me.getPort() + ".");
+
             // init a console associated with this application
             DefaultConsole console = new DefaultConsole(this);
             console.start();
-        } catch (UnknownHostException e) {
-            System.err.println("Fatal Error: Can not get own ip address.");
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Fatal Error: Can not fetch your remote ip address.\n" +
+                    "Check your internet connection.");
         }
     }
 
     /**
-     * <p></p>
+     * <p>Remove a connection from peer list. This is necessary,
+     * because connection will be closed and removed from the
+     * synchronized list.</p>
      * @param c connection to remove
      */
     public void removeConnection (Connection c) {
@@ -89,7 +100,6 @@ public class Application {
     public void receiveMessage (String input) {
         // generating message from input string
         Message message = new Message(input);
-        System.out.println("Receiving: " + input);
 
         // behaviour by command
         statement:
@@ -98,7 +108,6 @@ public class Application {
                 // check if peer is already in peer list
                 for (Connection c : connections) {
                     if (c.getPeer().equals(message.getPeer())) {
-                        System.out.println("FOUND PEER IN LIST!");
                         // reset last poke time
                         c.resetLastPoke();
                         // end switch statement
@@ -106,15 +115,19 @@ public class Application {
                     }
                 }
 
-                // forward message to whole peer list
+                // forward poke to whole peer list
                 for (Connection c : connections) {
                     c.sendMessage(message);
                 }
 
-                // add peer to peer list
                 Connection newPeer = new Connection(message.getPeer());
+                // send poke to the new connection
                 newPeer.poke(this);
+                // add peer to peer list
                 connections.add(newPeer);
+
+                System.out.println("> [" + new Date().toString() + "] " + newPeer.getPeer().getName() + " (" + newPeer.getPeer().getHostName() +
+                        ":" + newPeer.getPeer().getPort() + ") is online.");
                 break;
             }
 
@@ -122,6 +135,9 @@ public class Application {
                 // check if peer is in peer list
                 for (Connection c : connections) {
                     if (c.getPeer().equals(message.getPeer())) {
+                        System.out.println("> [" + new Date().toString() + "] " + c.getPeer().getName() + " (" + c.getPeer().getHostName() +
+                            ":" + c.getPeer().getPort() + ") disconnected.");
+
                         // remove him from peer list
                         removeConnection(c);
 
@@ -136,8 +152,8 @@ public class Application {
             }
 
             case "MESSAGE": {
-                // show received message
-                System.out.println(message.toString());
+                // show received message with timestamp, name and text
+                System.out.println("> [" + new Date().toString() + "] " + message.getPeer().getName() + ": " + message.getText());
                 break;
             }
 
@@ -149,14 +165,15 @@ public class Application {
     }
 
     /**
-     * <p></p>
+     * <p>Checking if peer, you want to send a message
+     * to, is in peer list and sends the message if so.
+     * Otherwise throws a exception.</p>
      * @param peer      peer to send the message to
      * @param message   message
      */
     public void sendMessage (Peer peer, Message message) {
         for (Connection c : connections) {
             if (c.getPeer().equals(peer)) {
-                System.out.println("Sending message " + message.toString() + " to " + c.getPeer().toString());
                 c.sendMessage(message);
                 break;
             }
@@ -167,29 +184,36 @@ public class Application {
     }
 
     /**
-     * <p></p>
+     * <p>Sends the message to all peers in peer list, which
+     * have the given name. If no peer has the given name,
+     * nothing happens.</p>
      * @param name      name to send message to
      * @param message   message
      */
     public void sendMessagesByName (String name, Message message) {
         for (Connection c : connections) {
             if (c.getPeer().getName().equals(name)) {
-                System.out.println("Sending message " + message.toString() + " to " + c.getPeer().toString());
                 c.sendMessage(message);
             }
         }
     }
 
     /**
-     * <p></p>
+     * <p>Shutdown server and timer thread and sending disconnect
+     * messages to the whole peer list, to signal that we going
+     * offline.</p>
      */
     public void exit () {
+        // shutdown server
         server.terminate();
-        timer.terminate();
-        System.out.println("Shutdown all servers.");
+        System.out.println("> [" + new Date().toString() + "] Server shutdown.");
 
+        // terminate timer
+        timer.terminate();
+        System.out.println("> [" + new Date().toString() + "] Timer terminated.");
+
+        // sending disconnect messages to peer list
         for (Connection c : connections) {
-            System.out.println("Sending DISCONNECT message to " + c.getPeer().toString());
             c.sendMessage(new Message("DISCONNECT", me));
             c.close();
         }
@@ -204,7 +228,8 @@ public class Application {
     }
 
     /**
-     * <p></p>
+     * <p>Represents the server that is listening for new
+     * connections and takes care of them.</p>
      */
     private class Server extends Thread {
 
@@ -216,7 +241,7 @@ public class Application {
         /**
          * <p>Application the server should work on.</p>
          */
-        private Application app;
+        private Application application;
 
         /**
          * <p>Port the server is listening on.</p>
@@ -226,32 +251,34 @@ public class Application {
         /**
          * <p>Creates a server with an application and
          * the port it should listen on.</p>
-         * @param app   application
-         * @param port  listening port
+         * @param application   application
+         * @param port          listening port
          */
-        Server (Application app, int port) {
-            this.app = app;
+        Server (Application application, int port) {
+            this.application = application;
             this.port = port;
         }
 
         /**
-         * <p></p>
+         * <p>Runs the server on {@link Server#port} and accepts
+         * connection/parses them to a new {@link ClientHandler} thread.</p>
          */
         @Override
         public void run () {
             try {
                 // open server
                 ServerSocket socket = new ServerSocket();
+                // binding port
                 socket.bind(new InetSocketAddress(port));
 
                 while (!_terminate) {
                     // listen for new messages
                     Socket client = socket.accept();
-                    ClientHandler clientHandler = new ClientHandler(client, app);
+                    ClientHandler clientHandler = new ClientHandler(application, client);
                     clientHandler.start();
                 }
             } catch (IOException e) {
-                System.err.println("Fatal Error: Can not start server.");
+                throw new IllegalArgumentException("Fatal Error: Can not start server.");
             }
         }
 
@@ -265,30 +292,38 @@ public class Application {
     }
 
     /**
-     * <p></p>
+     * <p>Receives new messages from a socket connection
+     * and parses them back to the application.</p>
      */
     private class ClientHandler extends Thread {
 
+        /**
+         * <p>Status of thread.</p>
+         */
         private boolean _terminate = false;
 
         /**
-         * <p></p>
+         * <p>Application the socket can send
+         * messages to.</p>
+         */
+        private Application application;
+
+        /**
+         * <p>Open connection to the client, can
+         * receive messages.</p>
          */
         private Socket socket;
 
         /**
-         * <p></p>
+         * <p>Creates a handler that is receiving messages
+         * from a specific socket (simplex) and parsing them
+         * to the application.</p>
+         * @param application   application
+         * @param socket        connection
          */
-        private Application app;
-
-        /**
-         * <p></p>
-         * @param socket
-         * @param app
-         */
-        ClientHandler (Socket socket, Application app) {
+        ClientHandler (Application application, Socket socket) {
+            this.application = application;
             this.socket = socket;
-            this.app = app;
         }
 
         /**
@@ -297,20 +332,26 @@ public class Application {
         @Override
         public void run () {
             try {
-                BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                BufferedReader reader = new BufferedReader(new InputStreamReader(
+                        socket.getInputStream()));
+
+                // constantly read messages from socket
                 while (!_terminate) {
-                    app.receiveMessage(reader.readLine());
+                    application.receiveMessage(reader.readLine());
                 }
+
+                // closing socket when terminated
                 socket.close();
             } catch (IOException e) {
-                System.out.println("");
+                throw new IllegalArgumentException("Error: Can not read message.");
             }
         }
 
         /**
-         * <p></p>
+         * <p>Terminate thread, by ending the loop in
+         * {@link ClientHandler#run()}.</p>
          */
-        public void terminate () {
+        void terminate () {
             _terminate = true;
         }
     }
@@ -323,21 +364,21 @@ public class Application {
     private class Timer extends Thread {
 
         /**
-         * <p></p>
+         * <p>Status of thread.</p>
          */
         private boolean _terminate = false;
 
         /**
-         * <p></p>
+         * <p>Application the timer works on.</p>
          */
-        private Application app;
+        private Application application;
 
         /**
-         * <p></p>
-         * @param app
+         * <p>Creates a new timer for application.</p>
+         * @param application   application
          */
-        Timer (Application app) {
-            this.app = app;
+        Timer (Application application) {
+            this.application = application;
         }
 
         /**
@@ -348,28 +389,29 @@ public class Application {
         public void run () {
             while (!_terminate) {
                 try {
-                    System.out.println("TIMER: Executed.");
                     // init buffer, to store inactive peers
                     ArrayDeque<Connection> buffer = new ArrayDeque<>();
 
                     // iterate peer list
-                    for (Connection c : app.getConnections()) {
-                        System.out.println("PEER: " + c.getPeer().toString());
+                    for (Connection c : application.getConnections()) {
                         if (c.isInactive()) {
                             // add inactive peers to buffer
                             buffer.add(c);
                         } else {
-                            c.poke(app);
+                            // poke active peers
+                            c.poke(application);
                         }
                     }
 
                     // remove all inactive peers from peer list
-                    app.getConnections().removeAll(buffer);
+                    for (Connection c : buffer) {
+                        application.removeConnection(c);
+                    }
 
-                    // execute procedure every 30 seconds
+                    // wait 30 seconds before executing again
                     sleep(30000);
                 } catch (InterruptedException e) {
-                    System.err.println("Error: Thread interrupted.");
+                    throw new IllegalArgumentException("Error: Thread interrupted.");
                 }
             }
         }

@@ -162,7 +162,7 @@ public class Application {
 
             case "MESSAGE": {
                 // show received message with timestamp, name and text
-                System.out.println("> [" + new Date().toString() + "] " + message.getPeer().getName() + ": " + message.getText());
+                System.out.println("> [" + new Date().toString() + "] " + message.getPeer().getName() + " -> You: " + message.getText());
                 break;
             }
 
@@ -181,15 +181,25 @@ public class Application {
      * @param message   message
      */
     public void sendMessage (Peer peer, Message message) {
+        boolean peerFound = false;
+        Peer temp = null;
         for (Connection c : connections) {
             if (c.getPeer().equals(peer)) {
                 c.sendMessage(message);
-                return;
+                peerFound = true;
+                temp = c.getPeer();
             }
         }
 
-        throw new IllegalArgumentException("Valid adress expected. " +
-                "The client you tried to message may have gone offline.");
+        if (!peerFound) {
+            System.err.println("> [" + new Date().toString() + "] Valid adress expected. " +
+                    "The client you tried to message may have gone offline.");
+        } else {
+            if (message.hasText()) {
+                System.out.println("> [" + new Date().toString() + "] You -> " + temp.getName() + ": " + message.getText());
+            }
+        }
+
     }
 
     /**
@@ -200,10 +210,18 @@ public class Application {
      * @param message   message
      */
     public void sendMessagesByName (String name, Message message) {
+        boolean peerFound = false;
         for (Connection c : connections) {
             if (c.getPeer().getName().equals(name)) {
                 c.sendMessage(message);
+                peerFound = true;
             }
+        }
+
+        if (!peerFound) {
+            System.err.println("> [" + new Date().toString() + "] No peer with name '" + name + "' found.");
+        } else {
+            System.out.println("> [" + new Date().toString() + "] You -> " + name + ": " + message.getText());
         }
     }
 

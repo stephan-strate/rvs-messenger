@@ -31,6 +31,15 @@ public class DefaultConsole extends Console {
 
         // assigning current application
         this.application = application;
+
+        System.out.println(
+                "* * * * * * * * * * * * * * * * * * * * * * * * * *\n" +
+                "*         Welcome to the messenger console!       *\n" +
+                "*      You can use 'help [command (optional)]'    *\n" +
+                "* to get informations about the functions of this *\n" +
+                "*     application. Type help for a command list.  *\n" +
+                "* * * * * * * * * * * * * * * * * * * * * * * * * *"
+        );
     }
 
     /**
@@ -163,6 +172,75 @@ public class DefaultConsole extends Console {
      */
     @Method
     protected void help (String[] args) {
-        
+        if (args.length == 0) {
+            // printing command list
+            System.out.println(
+                    "Commands:\n" +
+                            "* CONNECT <IP> <Port> - used to connect with a peer\n" +
+                            "* DISCONNECT - used to disconnect from the peer-to-peer network\n" +
+                            "* EXIT - used to disconnect from peer-to-peer network and exit the application\n" +
+                            "* M <Name> <Text> - used to send messages to all peers with name\n" +
+                            "* MX <IP> <Port> <Text> - used to send message to the peer with ip and port"
+            );
+        } else if (args.length == 1 && args[0] != null) {
+            // printing detailed informations to each command
+            switch (args[0].toUpperCase()) {
+                case "CONNECT": {
+                    System.out.println(
+                            "Usage: CONNECT <IP> <Port>\n" +
+                            "CONNECT is used to connect to a peer that is logged in to\n" +
+                            "the peer-to-peer network. You send a poke to him and when he is online,\n" +
+                            "he will send back a poke, so you know he is online.\n" +
+                            "To make the CONNECT command work, you need to parse a valid ip address and\n" +
+                            "a valid port.\n" +
+                            "Example: CONNECT 232.233.77.12 5375"
+                    );
+                    break;
+                }
+
+                case "DISCONNECT": {
+                    System.out.println(
+                            "Usage: DISCONNECT\n" +
+                            "DISCONNECT needs no parameters and signals all your connected\n" +
+                            "peers, that you are about to disconnect from the peer-to-peer network."
+                    );
+                    break;
+                }
+
+                case "EXIT": {
+                    System.out.println(
+                            "Usage: EXIT\n" +
+                            "EXIT is similar to DISCONNECT, but closes the application."
+                    );
+                    break;
+                }
+
+                case "M": {
+                    System.out.println(
+                            "Usage: M <Name> <Text>\n" +
+                            "M used to send messages to all connected peers with the name you\n" +
+                            "parsed to the method.\n" +
+                            "Example: M Tim Hello World!"
+                    );
+                    break;
+                }
+
+                case "MX": {
+                    System.out.println(
+                            "Usage: MX <IP> <Port> <Text>\n" +
+                            "MX used to send a message to a specific connected peer. Peer is defined by\n" +
+                            "a ip address and port.\n" +
+                            "Example: MX 232.233.77.12 5375 Hello World!"
+                    );
+                    break;
+                }
+
+                default: {
+                    System.out.println("Command " + args[0].toUpperCase() + " not found.");
+                }
+            }
+        } else {
+            throw new IllegalArgumentException("Error: HELP expects no or one argument.");
+        }
     }
 }

@@ -184,7 +184,7 @@ public class Application {
         for (Connection c : connections) {
             if (c.getPeer().equals(peer)) {
                 c.sendMessage(message);
-                break;
+                return;
             }
         }
 

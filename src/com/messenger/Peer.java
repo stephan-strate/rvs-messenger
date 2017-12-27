@@ -53,8 +53,7 @@ public class Peer {
      * @return  is peer equal
      */
     public boolean equals (Peer peer) {
-        return name.equals(peer.getName())
-                && getHostName().equals(peer.getHostName())
+        return getHostName().equals(peer.getHostName())
                 && getPort() == peer.getPort();
     }
 

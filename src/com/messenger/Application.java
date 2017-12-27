@@ -98,6 +98,8 @@ public class Application {
      * @param input raw input message
      */
     public void receiveMessage (String input) {
+        System.out.println("§ DEBUG > Raw message: " + input);
+
         // generating message from input string
         Message message = new Message(input);
 

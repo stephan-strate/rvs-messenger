@@ -5,6 +5,8 @@ import com.messenger.Connection;
 import com.messenger.Message;
 import com.messenger.Peer;
 
+import java.util.Date;
+
 /**
  * <p>Default console for rvs-messenger application.
  * We define the text interface methods right here, you
@@ -125,6 +127,7 @@ public class DefaultConsole extends Console {
 
             // preparing message and sending it to all name
             application.sendMessagesByName(name, new Message("MESSAGE", application.me, message));
+            System.out.println("> [" + new Date().toString() + "] You: " + message);
         } else {
             throw new IllegalArgumentException("M does expect a name and a message.\n" +
                     "Example: M Jon Hello World!");
@@ -156,6 +159,7 @@ public class DefaultConsole extends Console {
 
                 // preparing message and sending it to peer
                 application.sendMessage(new Peer(ip, port), new Message("MESSAGE", application.me, message));
+                System.out.println("> [" + new Date().toString() + "] You: " + message);
             } catch (NumberFormatException e) {
                 throw new IllegalArgumentException("Error: Port must be a valid number.");
             }

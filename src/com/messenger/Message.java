@@ -110,6 +110,8 @@ public class Message {
                     }
 
                     this.text = stringBuilder.toString();
+                } else if (input.length > 4) {
+                    this.text = input[4];
                 }
             } else {
                 throw new IllegalArgumentException("Error: Invalid number of arguments in " +

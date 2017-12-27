@@ -55,13 +55,30 @@ public class Connection {
     private PrintWriter writer;
 
     /**
+     * <p></p>
+     */
+    private Application.ClientHandler clientHandler;
+
+    /**
      * <p>Creates a connection to given peer and
      * inits a timer that is constantly checking if
      * connection is still active.</p>
      * @param peer  peer to open connection with
      */
     public Connection (Peer peer) {
+        this(peer, null);
+    }
+
+    /**
+     * <p>Creates a connection to given peer and
+     * inits a timer that is constantly checking if
+     * connection is still active.</p>
+     * @param peer          peer to open connection with
+     * @param clientHandler client connection handler
+     */
+    public Connection (Peer peer, Application.ClientHandler clientHandler) {
         this.peer = peer;
+        this.clientHandler = clientHandler;
 
         try {
             // connect with peer
@@ -70,8 +87,6 @@ public class Connection {
 
             // start writer, to send messages
             writer = new PrintWriter(socket.getOutputStream(), true);
-
-            System.out.println("§ DEBUG > Connection established: " + this.getPeer().toString());
 
             // start timer
             timer = new Timer(this);
@@ -102,6 +117,11 @@ public class Connection {
     public void close () {
         // terminate thread
         timer.terminate();
+
+        // terminate client handler
+        if (clientHandler != null) {
+            clientHandler.terminate();
+        }
 
         try {
             // close socket connection

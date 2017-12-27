@@ -95,80 +95,77 @@ public class Application {
      * <p>Handles messages the server receives.
      * Forwards POKE and DISCONNECT messages and
      * prints MESSAGE messages.</p>
-     * @param input raw input message
+     * @param input raw     input message
+     * @param clientHandler client handler
      */
-    public void receiveMessage (String input) {
-        System.out.println("§ DEBUG > Raw message: " + input);
+    public void receiveMessage (String input, ClientHandler clientHandler) {
+        // catch null messages
+        if (input != null) {
+            // generating message from input string
+            Message message = new Message(input);
 
-        // generating message from input string
-        Message message = new Message(input);
-
-        System.out.println("§ DEBUG > Message received: " + message.toString());
-
-        // behaviour by command
-        statement:
-        switch (message.getCommand()) {
-            case "POKE": {
-                // check if peer is already in peer list
-                for (Connection c : connections) {
-                    if (c.getPeer().equals(message.getPeer())) {
-                        // reset last poke time
-                        c.resetLastPoke();
-
-                        System.out.println("§ DEBUG > Check! Peer already in list: " + c.getPeer().toString());
-
-                        // end switch statement
-                        break statement;
-                    }
-                }
-
-                // forward poke to whole peer list
-                for (Connection c : connections) {
-                    c.sendMessage(message);
-                }
-
-                Connection newPeer = new Connection(message.getPeer());
-                // send poke to the new connection
-                newPeer.poke(this);
-                // add peer to peer list
-                connections.add(newPeer);
-
-                System.out.println("§ DEBUG > New peer added to peer list: " + newPeer.getPeer().toString());
-
-                System.out.println("> [" + new Date().toString() + "] " + newPeer.getPeer().getName() + " (" + newPeer.getPeer().getHostName() +
-                        ":" + newPeer.getPeer().getPort() + ") is online.");
-                break;
-            }
-
-            case "DISCONNECT": {
-                // check if peer is in peer list
-                for (Connection c : connections) {
-                    if (c.getPeer().equals(message.getPeer())) {
-                        System.out.println("> [" + new Date().toString() + "] " + c.getPeer().getName() + " (" + c.getPeer().getHostName() +
-                            ":" + c.getPeer().getPort() + ") disconnected.");
-
-                        // remove him from peer list
-                        removeConnection(c);
-
-                        // forward disconnect message to all peers
-                        for (Connection g : connections) {
-                            g.sendMessage(message);
+            // behaviour by command
+            statement:
+            switch (message.getCommand()) {
+                case "POKE": {
+                    // check if peer is already in peer list
+                    for (Connection c : connections) {
+                        if (c.getPeer().equals(message.getPeer())) {
+                            // reset last poke time
+                            c.resetLastPoke();
+                            // end switch statement
+                            break statement;
                         }
                     }
+
+                    // forward poke to whole peer list
+                    for (Connection c : connections) {
+                        c.sendMessage(message);
+                    }
+
+                    Connection newPeer = new Connection(message.getPeer(), clientHandler);
+                    // send poke to the new connection
+                    newPeer.poke(this);
+                    // add peer to peer list
+                    connections.add(newPeer);
+
+                    System.out.println("> [" + new Date().toString() + "] " + newPeer.getPeer().getName() + " (" + newPeer.getPeer().getHostName() +
+                            ":" + newPeer.getPeer().getPort() + ") is online.");
+                    break;
                 }
 
-                break;
-            }
+                case "DISCONNECT": {
+                    // check if peer is in peer list
+                    for (Iterator<Connection> it = connections.iterator(); it.hasNext();) {
+                        Connection c = it.next();
+                        if (c.getPeer().equals(message.getPeer())) {
+                            System.out.println("> [" + new Date().toString() + "] " + c.getPeer().getName() + " (" + c.getPeer().getHostName() +
+                                    ":" + c.getPeer().getPort() + ") disconnected.");
 
-            case "MESSAGE": {
-                // show received message with timestamp, name and text
-                System.out.println("> [" + new Date().toString() + "] " + message.getPeer().getName() + " -> You: " + message.getText());
-                break;
-            }
+                            // remove him from peer list
+                            c.close();
+                            it.remove();
 
-            default: {
-                throw new IllegalStateException("Valid command expected, but "
-                        + message.getCommand()+ " found instead.");
+                            // forward disconnect message to all peers
+                            for (Connection g : connections) {
+                                g.sendMessage(message);
+                            }
+                        }
+                    }
+
+                    break;
+                }
+
+                case "MESSAGE": {
+                    // show received message with timestamp, name and text
+                    System.out.println("> [" + new Date().toString() + "] " + message.getPeer().getName() + " -> You: " + message.getText());
+                    break;
+                }
+
+                default: {
+                    throw new IllegalStateException("Valid command expected, but "
+                            + message.getCommand()+ " found instead.");
+                }
             }
         }
     }
@@ -322,7 +319,7 @@ public class Application {
      * <p>Receives new messages from a socket connection
      * and parses them back to the application.</p>
      */
-    private class ClientHandler extends Thread {
+    class ClientHandler extends Thread {
 
         /**
          * <p>Status of thread.</p>
@@ -363,14 +360,17 @@ public class Application {
                         socket.getInputStream()));
 
                 // constantly read messages from socket
-                while (!_terminate) {
-                    application.receiveMessage(reader.readLine());
+                String last = "";
+                while (!_terminate && last != null) {
+                    if ((last = reader.readLine()) != null) {
+                        application.receiveMessage(last, this);
+                    }
                 }
 
                 // closing socket when terminated
                 socket.close();
             } catch (IOException e) {
-                throw new IllegalArgumentException("Error: Can not read message.");
+                System.err.println("> [" + new Date().toString() + "] Lost connection to peer.");
             }
         }
 

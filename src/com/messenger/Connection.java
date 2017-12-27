@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.Date;
 
 /**
  * <p>Represents a connection with a peer. You
@@ -12,6 +13,11 @@ import java.net.Socket;
  * receive any messages.</p>
  */
 public class Connection {
+
+    /**
+     * <p>Status of connection.</p>
+     */
+    public boolean valid;
 
     /**
      * <p>Status of the connection, is updated every
@@ -70,8 +76,12 @@ public class Connection {
             // start timer
             timer = new Timer(this);
             timer.start();
+
+            valid = true;
         } catch (IOException e) {
-            throw new NullPointerException("Error: Connection couldn't be initiated properly.");
+            System.err.println("> [" + new Date().toString() + "] Connection to " + peer.getHostName() + ":" + peer.getPort() +
+                " couldn't be initiated properly. Maybe there is no peer listening.");
+            valid = false;
         }
     }
 
@@ -106,7 +116,9 @@ public class Connection {
      * @param message   {@link Message} to send
      */
     public void sendMessage (Message message) {
-        writer.println(message.toString());
+        if (valid) {
+            writer.println(message.toString());
+        }
     }
 
     /**

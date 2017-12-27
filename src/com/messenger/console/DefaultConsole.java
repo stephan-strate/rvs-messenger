@@ -5,8 +5,6 @@ import com.messenger.Connection;
 import com.messenger.Message;
 import com.messenger.Peer;
 
-import java.util.Date;
-
 /**
  * <p>Default console for rvs-messenger application.
  * We define the text interface methods right here, you

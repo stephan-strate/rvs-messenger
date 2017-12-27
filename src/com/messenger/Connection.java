@@ -65,6 +65,8 @@ public class Connection {
             // start writer, to send messages
             writer = new PrintWriter(socket.getOutputStream(), true);
 
+            System.out.println("§ DEBUG > Connection established: " + this.getPeer().toString());
+
             // start timer
             timer = new Timer(this);
             timer.start();

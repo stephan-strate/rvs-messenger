@@ -101,6 +101,8 @@ public class Application {
         // generating message from input string
         Message message = new Message(input);
 
+        System.out.println("§ DEBUG > Message received: " + message.toString());
+
         // behaviour by command
         statement:
         switch (message.getCommand()) {
@@ -110,6 +112,9 @@ public class Application {
                     if (c.getPeer().equals(message.getPeer())) {
                         // reset last poke time
                         c.resetLastPoke();
+
+                        System.out.println("§ DEBUG > Check! Peer already in list: " + c.getPeer().toString());
+
                         // end switch statement
                         break statement;
                     }
@@ -125,6 +130,8 @@ public class Application {
                 newPeer.poke(this);
                 // add peer to peer list
                 connections.add(newPeer);
+
+                System.out.println("§ DEBUG > New peer added to peer list: " + newPeer.getPeer().toString());
 
                 System.out.println("> [" + new Date().toString() + "] " + newPeer.getPeer().getName() + " (" + newPeer.getPeer().getHostName() +
                         ":" + newPeer.getPeer().getPort() + ") is online.");

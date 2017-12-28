@@ -5,11 +5,14 @@ import com.messenger.Connection;
 import com.messenger.Message;
 import com.messenger.Peer;
 
+import java.util.Date;
+
 /**
  * <p>Default console for rvs-messenger application.
  * We define the text interface methods right here, you
  * can use the following methods directly in the
- * unix/windows console: CONNECT, DISCONNECT, EXIT, M, MX.</p>
+ * unix/windows console: CONNECT, DISCONNECT, EXIT, M, MX,
+ * HELP, PEERS.</p>
  */
 public class DefaultConsole extends Console {
 
@@ -77,8 +80,10 @@ public class DefaultConsole extends Console {
         if (args.length == 0 || args[0] == null) {
             // sending DISCONNECT message
             application.exit();
+            super.exit(null);
         } else {
-            System.err.println("Error: DISCONNECT does not expect arguments.");
+            System.err.println("Error: DISCONNECT does not expect arguments.\n" +
+                    "Example: DISCONNECT");
         }
     }
 
@@ -95,10 +100,11 @@ public class DefaultConsole extends Console {
             disconnect(args);
 
             // close client
-            System.out.println("Closing messenger.");
+            System.out.println("> [" + new Date().toString() + "] Closing messenger.");
             System.exit(0);
         } else {
-            System.err.println("Error: EXIT does not expect arguments.");
+            System.err.println("Error: EXIT does not expect arguments.\n" +
+                    "Example: EXIT");
         }
     }
 
@@ -157,7 +163,8 @@ public class DefaultConsole extends Console {
                 // preparing message and sending it to peer
                 application.sendMessage(new Peer(ip, port), new Message("MESSAGE", application.me, message));
             } catch (NumberFormatException e) {
-                System.err.println("Error: Port must be a valid number.");
+                System.err.println("Error: Port must be a valid number.\n" +
+                        "Example: MX 127.0.0.1 6734 Hello World!");
             }
         } else {
             System.err.println("Error: MX expects an ip address, a port and a message.\n" +
@@ -259,7 +266,8 @@ public class DefaultConsole extends Console {
                 }
             }
         } else {
-            System.err.println("Error: HELP expects no or one argument.");
+            System.err.println("Error: HELP expects no or one argument.\n" +
+                    "Example: HELP mx");
         }
     }
 
@@ -283,7 +291,8 @@ public class DefaultConsole extends Console {
                 }
             }
         } else {
-            System.err.println("Error: PEERS expects no or one argument.");
+            System.err.println("Error: PEERS expects no or one argument.\n" +
+                    "Example: PEERS Tim");
         }
     }
 }

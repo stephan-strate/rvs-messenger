@@ -1,6 +1,7 @@
 package com.messenger;
 
 import com.messenger.console.DefaultConsole;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;

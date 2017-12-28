@@ -20,7 +20,9 @@ abstract class Console {
     private ArrayList<Method> methods = new ArrayList<>();
 
     /**
-     * <p>Create a new console.</p>
+     * <p>Create a new console. Fetches all methods with
+     * {@link Method} annotation and adds them to a list.
+     * Methods will be invoked from this list later.</p>
      */
     Console () {
         for (Method method : getClass().getDeclaredMethods()) {
@@ -33,7 +35,8 @@ abstract class Console {
 
     /**
      * <p>Logical part of console application.
-     * Reading new lines and invoking the correct methods.</p>
+     * Reading new lines, invoking the correct methods and
+     * parsing the correct arguments.</p>
      */
     private void process () {
         // init reader
@@ -64,7 +67,7 @@ abstract class Console {
                             return;
                         }
                     }
-                    System.err.println("Method not found.");
+                    System.err.println("Error: Method not found.");
                 }
             } catch (IOException e) {
                 System.out.println("Error. Input/Output error.");
@@ -72,7 +75,6 @@ abstract class Console {
                 System.out.println("Internal error. No permission to call method.");
             } catch (InvocationTargetException e) {
                 System.out.println("Can not execute console method (wrong arguments).");
-                e.printStackTrace();
             }
         }
     }

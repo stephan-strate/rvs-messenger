@@ -61,8 +61,10 @@ abstract class Console {
                             params[0] = args;
                             // invoke method
                             method.invoke(this, params);
+                            return;
                         }
                     }
+                    System.err.println("Method not found.");
                 }
             } catch (IOException e) {
                 System.out.println("Error. Input/Output error.");

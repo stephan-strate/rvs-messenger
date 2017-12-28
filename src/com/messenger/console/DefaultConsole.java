@@ -57,11 +57,11 @@ public class DefaultConsole extends Console {
                 // send a poke request to peer without adding it to peer list
                 new Connection(new Peer(ip, port)).poke(application);
             } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("Error: Port must be a valid number.\n" +
+                System.err.println("Error: Port must be a valid number.\n" +
                         "Example: CONNECT 127.0.0.1 6734");
             }
         } else {
-            throw new IllegalArgumentException("CONNECT erwartet genau eine IP Adresse und einen Port.\n" +
+            System.err.println("Error: CONNECT erwartet genau eine IP Adresse und einen Port.\n" +
                     "Beispiel: CONNECT 127.0.0.1 6734");
         }
     }
@@ -78,7 +78,7 @@ public class DefaultConsole extends Console {
             // sending DISCONNECT message
             application.exit();
         } else {
-            throw new IllegalArgumentException("Error: DISCONNECT does not expect arguments.");
+            System.err.println("Error: DISCONNECT does not expect arguments.");
         }
     }
 
@@ -98,7 +98,7 @@ public class DefaultConsole extends Console {
             System.out.println("Closing messenger.");
             System.exit(0);
         } else {
-            throw new IllegalArgumentException("Error: EXIT does not expect arguments.");
+            System.err.println("Error: EXIT does not expect arguments.");
         }
     }
 
@@ -126,7 +126,7 @@ public class DefaultConsole extends Console {
             // preparing message and sending it to all name
             application.sendMessagesByName(name, new Message("MESSAGE", application.me, message));
         } else {
-            throw new IllegalArgumentException("M does expect a name and a message.\n" +
+            System.err.println("Error: M does expect a name and a message.\n" +
                     "Example: M Jon Hello World!");
         }
     }
@@ -157,10 +157,10 @@ public class DefaultConsole extends Console {
                 // preparing message and sending it to peer
                 application.sendMessage(new Peer(ip, port), new Message("MESSAGE", application.me, message));
             } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("Error: Port must be a valid number.");
+                System.err.println("Error: Port must be a valid number.");
             }
         } else {
-            throw new IllegalArgumentException("Error: MX expects an ip address, a port and a message.\n" +
+            System.err.println("Error: MX expects an ip address, a port and a message.\n" +
                     "Example: MX 127.0.0.1 6734 Hello World!");
         }
     }
@@ -180,7 +180,9 @@ public class DefaultConsole extends Console {
                             "* DISCONNECT - used to disconnect from the peer-to-peer network\n" +
                             "* EXIT - used to disconnect from peer-to-peer network and exit the application\n" +
                             "* M <Name> <Text> - used to send messages to all peers with name\n" +
-                            "* MX <IP> <Port> <Text> - used to send message to the peer with ip and port"
+                            "* MX <IP> <Port> <Text> - used to send message to the peer with ip and port\n" +
+                            "* HELP <?Command> - get informations about the selected command/get a command list\n" +
+                            "* PEERS <?Name> - list informations about the selected peer/print all peers"
             );
         } else if (args.length == 1 && args[0] != null) {
             // printing detailed informations to each command
@@ -235,12 +237,29 @@ public class DefaultConsole extends Console {
                     break;
                 }
 
+                case "HELP": {
+                    System.out.println(
+                            "You are using HELP already :)"
+                    );
+                    break;
+                }
+
+                case "PEERS": {
+                    System.out.println(
+                            "Usage: PEERS <?Name>\n" +
+                            "PEERS can print all peers in peer list or all peers associated\n" +
+                            "with the given name.\n" +
+                            "Example: PEERS Tim"
+                    );
+                    break;
+                }
+
                 default: {
                     System.out.println("Command " + args[0].toUpperCase() + " not found.");
                 }
             }
         } else {
-            throw new IllegalArgumentException("Error: HELP expects no or one argument.");
+            System.err.println("Error: HELP expects no or one argument.");
         }
     }
 
@@ -264,7 +283,7 @@ public class DefaultConsole extends Console {
                 }
             }
         } else {
-            throw new IllegalArgumentException("Error: PEERS expects no or one argument.");
+            System.err.println("Error: PEERS expects no or one argument.");
         }
     }
 }

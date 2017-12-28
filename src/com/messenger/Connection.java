@@ -55,7 +55,9 @@ public class Connection {
     private PrintWriter writer;
 
     /**
-     * <p></p>
+     * <p>ClientHandler that is responsible for
+     * receiving messages of connection. Needs to
+     * be terminated on close.</p>
      */
     private Application.ClientHandler clientHandler;
 
@@ -127,7 +129,7 @@ public class Connection {
             // close socket connection
             socket.close();
         } catch (IOException e) {
-            throw new NullPointerException("Error: Connection couldn't be terminated properly.");
+            System.err.println("Error: Connection couldn't be terminated properly.");
         }
     }
 
@@ -138,6 +140,8 @@ public class Connection {
     public void sendMessage (Message message) {
         if (valid) {
             writer.println(message.toString());
+        } else {
+            System.err.println("> [" + new Date().toString() + "] Can not send message: " + message.getText());
         }
     }
 
@@ -226,7 +230,7 @@ public class Connection {
 
                     sleep(60000);
                 } catch (InterruptedException e) {
-                    throw new NullPointerException("Error: Thread interrupted.");
+                    System.err.println("Error: Thread interrupted.");
                 }
             }
         }

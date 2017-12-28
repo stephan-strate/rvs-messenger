@@ -183,7 +183,7 @@ public class DefaultConsole extends Console {
             System.out.println(
                     "Commands:\n" +
                             "* CONNECT <IP> <Port> - used to connect with a peer\n" +
-                            "* DISCONNECT - used to disconnect from the peer-to-peer network\n" +
+                            "* DISCONNECT - used to disconnect from all connected peers\n" +
                             "* EXIT - used to disconnect from peer-to-peer network and exit the application\n" +
                             "* M <Name> <Text> - used to send messages to all peers with name\n" +
                             "* MX <IP> <Port> <Text> - used to send message to the peer with ip and port\n" +

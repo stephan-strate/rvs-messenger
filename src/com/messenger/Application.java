@@ -109,6 +109,22 @@ public class Application {
     }
 
     /**
+     * <p>Shutdown server and timer thread.</p>
+     */
+    public void exit () {
+        // disconnect from all peers
+        removeAll();
+
+        // shutdown server
+        server.terminate();
+        System.out.println("> [" + new Date().toString() + "] Server shutdown.");
+
+        // terminate timer
+        timer.terminate();
+        System.out.println("> [" + new Date().toString() + "] Timer terminated.");
+    }
+
+    /**
      * <p>Handles messages the server receives.
      * Forwards POKE and DISCONNECT messages and
      * prints MESSAGE messages.</p>
@@ -240,19 +256,6 @@ public class Application {
     }
 
     /**
-     * <p>Shutdown server and timer thread.</p>
-     */
-    public void exit () {
-        // shutdown server
-        server.terminate();
-        System.out.println("> [" + new Date().toString() + "] Server shutdown.");
-
-        // terminate timer
-        timer.terminate();
-        System.out.println("> [" + new Date().toString() + "] Timer terminated.");
-    }
-
-    /**
      * <p>Gets {@link Application#connections}.</p>
      * @return  {@link Application#connections}
      */
@@ -311,7 +314,8 @@ public class Application {
                     clientHandler.start();
                 }
             } catch (IOException e) {
-                throw new IllegalArgumentException("Fatal Error: Can not start server.");
+                System.err.println("Fatal Error: Can not start server.");
+                System.exit(1);
             }
         }
 
@@ -360,7 +364,8 @@ public class Application {
         }
 
         /**
-         * <p></p>
+         * <p>Listen for new messages from a specific socket and
+         * parsing them to {@link Application#receiveMessage(String, ClientHandler)}.</p>
          */
         @Override
         public void run () {
@@ -447,7 +452,8 @@ public class Application {
                     // wait 30 seconds before executing again
                     sleep(30000);
                 } catch (InterruptedException e) {
-                    throw new IllegalArgumentException("Error: Thread interrupted.");
+                    System.err.println("Error: Thread interrupted.");
+                    System.exit(1);
                 }
             }
         }

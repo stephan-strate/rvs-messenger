@@ -16,7 +16,16 @@ import java.util.Arrays;
  */
 abstract class Console {
 
+    /**
+     * <p>Status of console. Can be terminated
+     * by using {@link Console#exit(String[])}.</p>
+     */
     private boolean active = false;
+
+    /**
+     * <p>Used to store all fetched methods with
+     * {@link com.messenger.console.Method} annotation.</p>
+     */
     private ArrayList<Method> methods = new ArrayList<>();
 
     /**
@@ -69,22 +78,25 @@ abstract class Console {
                         }
                     }
 
+                    // when no method is found
                     if (!methodFound) {
                         System.err.println("Error: Method not found.");
                     }
                 }
             } catch (IOException e) {
-                System.out.println("Error. Input/Output error.");
+                System.err.println("Error: Input/Output error.");
             } catch (IllegalAccessException e) {
-                System.out.println("Internal error. No permission to call method.");
+                System.err.println("Internal Error: No permission to call method.");
             } catch (InvocationTargetException e) {
-                System.out.println("Can not execute console method (wrong arguments).");
+                System.err.println("Error: Console method threw error.");
             }
         }
     }
 
     /**
-     * <p>Start the console application.</p>
+     * <p>Start the console application by setting
+     * {@link Console#active} to {@code true} and invoking
+     * {@link Console#process()}.</p>
      */
     public void start () {
         active = true;

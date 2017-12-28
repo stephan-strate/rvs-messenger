@@ -56,6 +56,7 @@ abstract class Console {
                     String[] args = Arrays.copyOfRange(parts, 1, parts.length);
 
                     // iterate all methods
+                    boolean methodFound = false;
                     for (Method method : methods) {
                         // check if any method has the name of endpoint
                         if (method.getName().equals(endpoint)) {
@@ -64,10 +65,13 @@ abstract class Console {
                             params[0] = args;
                             // invoke method
                             method.invoke(this, params);
-                            return;
+                            methodFound = true;
                         }
                     }
-                    System.err.println("Error: Method not found.");
+
+                    if (!methodFound) {
+                        System.err.println("Error: Method not found.");
+                    }
                 }
             } catch (IOException e) {
                 System.out.println("Error. Input/Output error.");

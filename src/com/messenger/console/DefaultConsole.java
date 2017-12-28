@@ -78,9 +78,8 @@ public class DefaultConsole extends Console {
     protected void disconnect (String[] args) {
         // check if no more parameters are given
         if (args.length == 0 || args[0] == null) {
-            // sending DISCONNECT message
-            application.exit();
-            super.exit(null);
+            // sending DISCONNECT messages
+            application.removeAll();
         } else {
             System.err.println("Error: DISCONNECT does not expect arguments.\n" +
                     "Example: DISCONNECT");
@@ -96,8 +95,8 @@ public class DefaultConsole extends Console {
     public void exit (String[] args) {
         // check if no more parameters are given
         if (args.length == 0 || args[0] == null) {
-            // sending DISCONNECT message
-            disconnect(args);
+            // shutdown server/timer
+            application.exit();
 
             // close client
             System.out.println("> [" + new Date().toString() + "] Closing messenger.");

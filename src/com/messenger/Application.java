@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.*;
 import java.util.*;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * <p>Represents the main application. Here we start our server,
@@ -17,6 +18,12 @@ import java.util.*;
 public class Application {
 
     /**
+     * <p>Represents the own {@link Peer} with
+     * ip address, port and name.</p>
+     */
+    public Peer me;
+
+    /**
      * <p>Server to listen for messages. Runs in
      * a separate thread.</p>
      */
@@ -24,7 +31,7 @@ public class Application {
 
     /**
      * <p>Timer, that executes a procedure every
-     * 30 seconds.</p>
+     * 30 seconds. Runs in a separate thread.</p>
      */
     private Timer timer;
 
@@ -32,12 +39,7 @@ public class Application {
      * <p>Peer list, that contains all active
      * (maybe inactive) connections with peers.</p>
      */
-    private List<Connection> connections;
-
-    /**
-     * <p>Represents the own server.</p>
-     */
-    public Peer me;
+    private LinkedBlockingQueue<Connection> connections;
 
     /**
      * <p>Main constructor of whole application. Peer list gets
@@ -56,8 +58,7 @@ public class Application {
             me = new Peer(in.readLine(), port, name);
             /* LOCAL DEBUG */ me = new Peer(InetAddress.getLocalHost().getHostAddress(), port, name); /* LOCAL DEBUG END */
             // init synchronized peer list
-            List<Connection> prepare = new ArrayList<>();
-            connections = Collections.synchronizedList(prepare);
+            connections = new LinkedBlockingQueue<>();
 
             // run server
             server = new Server(this, port);
@@ -73,8 +74,9 @@ public class Application {
             DefaultConsole console = new DefaultConsole(this);
             console.start();
         } catch (IOException e) {
-            throw new IllegalArgumentException("Fatal Error: Can not fetch your remote ip address.\n" +
+            System.err.println("Fatal Error: Can not fetch your remote ip address.\n" +
                     "Check your internet connection.");
+            System.exit(1);
         }
     }
 
@@ -84,12 +86,26 @@ public class Application {
      * synchronized list.</p>
      * @param c connection to remove
      */
-    public void removeConnection (Connection c) {
+    private void removeConnection (Connection c) {
         // closing given connection
         c.close();
 
         // removing connection from peer list
         connections.remove(c);
+    }
+
+    /**
+     * <p>Clear whole peer list by sending DISCONNECT messages
+     * to everyone and clearing {@link Application#connections}.</p>
+     */
+    public void removeAll () {
+        for (Connection c : connections) {
+            c.sendMessage(new Message("DISCONNECT", me));
+        }
+
+        // clear list
+        connections.clear();
+        System.out.println("> [" + new Date().toString() + "] Disconnected from all peers.");
     }
 
     /**
@@ -99,7 +115,7 @@ public class Application {
      * @param input raw     input message
      * @param clientHandler client handler
      */
-    public void receiveMessage (String input, ClientHandler clientHandler) {
+    private void receiveMessage (String input, ClientHandler clientHandler) {
         // catch null messages
         if (input != null) {
             // generating message from input string
@@ -164,8 +180,8 @@ public class Application {
                 }
 
                 default: {
-                    throw new IllegalStateException("Valid command expected, but "
-                            + message.getCommand()+ " found instead.");
+                    System.err.println("Valid command expected, but "
+                            + message.getCommand()+ " found instead. Message not handled.");
                 }
             }
         }
@@ -224,9 +240,7 @@ public class Application {
     }
 
     /**
-     * <p>Shutdown server and timer thread and sending disconnect
-     * messages to the whole peer list, to signal that we going
-     * offline.</p>
+     * <p>Shutdown server and timer thread.</p>
      */
     public void exit () {
         // shutdown server
@@ -236,19 +250,13 @@ public class Application {
         // terminate timer
         timer.terminate();
         System.out.println("> [" + new Date().toString() + "] Timer terminated.");
-
-        // sending disconnect messages to peer list
-        for (Connection c : connections) {
-            c.sendMessage(new Message("DISCONNECT", me));
-            c.close();
-        }
     }
 
     /**
      * <p>Gets {@link Application#connections}.</p>
      * @return  {@link Application#connections}
      */
-    public List<Connection> getConnections () {
+    public LinkedBlockingQueue<Connection> getConnections () {
         return connections;
     }
 

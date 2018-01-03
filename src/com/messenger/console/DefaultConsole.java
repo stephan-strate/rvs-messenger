@@ -58,7 +58,9 @@ public class DefaultConsole extends Console {
                 int port = Integer.parseInt(args[1]);
 
                 // send a poke request to peer without adding it to peer list
-                new Connection(new Peer(ip, port)).poke(application);
+                Connection temp = new Connection(new Peer(ip, port));
+                temp.poke(application);
+                temp.close();
             } catch (NumberFormatException e) {
                 System.err.println("Error: Port must be a valid number.\n" +
                         "Example: CONNECT 127.0.0.1 6734");

@@ -101,6 +101,7 @@ public class Application {
     public void removeAll () {
         for (Connection c : connections) {
             c.sendMessage(new Message("DISCONNECT", me));
+            c.close();
         }
 
         // clear list

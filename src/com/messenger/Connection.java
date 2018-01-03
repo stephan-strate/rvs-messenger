@@ -1,9 +1,11 @@
 package com.messenger;
 
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 /**
@@ -88,7 +90,7 @@ public class Connection {
             socket.connect(new InetSocketAddress(peer.getHostName(), peer.getPort()));
 
             // start writer, to send messages
-            writer = new PrintWriter(socket.getOutputStream(), true);
+            writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8), true);
 
             // start timer
             timer = new Timer(this);

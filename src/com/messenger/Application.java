@@ -50,13 +50,7 @@ public class Application {
      */
     public Application (int port, String name) {
         try {
-            // fetch external ip address
-            URL getMyIp = new URL("http://checkip.amazonaws.com");
-            BufferedReader in = new BufferedReader(new InputStreamReader(getMyIp.openStream()));
-
-            // init own peer
-            me = new Peer(in.readLine(), port, name);
-            /* LOCAL DEBUG */ me = new Peer(InetAddress.getLocalHost().getHostAddress(), port, name); /* LOCAL DEBUG END */
+            me = new Peer(InetAddress.getLocalHost().getHostAddress(), port, name);
             // init synchronized peer list
             connections = new LinkedBlockingQueue<>();
 

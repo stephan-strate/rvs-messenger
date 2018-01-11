@@ -99,9 +99,9 @@ public class Peer {
     public String getName () {
         if (name != null) {
             return name;
-        } else {
-            throw new NullPointerException("Error: The peer " + ip + ":" + port + " has no name.");
         }
+
+        return "";
     }
 
     /**

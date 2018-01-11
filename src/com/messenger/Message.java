@@ -114,11 +114,11 @@ public class Message {
                     this.text = input[4];
                 }
             } else {
-                throw new IllegalArgumentException("Error: Invalid number of arguments in " +
+                System.err.println("Error: Invalid number of arguments in " +
                         "input string.");
             }
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Error: Port must be a valid number.");
+            System.err.println("Error: Port must be a valid number.");
         }
     }
 
@@ -131,7 +131,7 @@ public class Message {
     @Override
     public String toString () {
         // concat command and peer
-        String message = command + " " +  peer.toString();
+        String message = command.toUpperCase() + " " +  peer.toString();
         if (hasText()) {
             // add text, when available
             message += " " + text;
@@ -173,8 +173,8 @@ public class Message {
     public String getText () {
         if (text != null) {
             return text;
-        } else {
-            throw new NullPointerException("Error: Message " + toString() + " has no text.");
         }
+
+        return "";
     }
 }

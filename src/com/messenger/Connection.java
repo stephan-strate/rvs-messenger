@@ -17,7 +17,9 @@ import java.util.Date;
 public class Connection {
 
     /**
-     * <p>Status of connection.</p>
+     * <p>Connection instance might have been created
+     * without a valid socket. Valid shows status about the
+     * connection.</p>
      */
     public boolean valid;
 
@@ -64,9 +66,8 @@ public class Connection {
     private Application.ClientHandler clientHandler;
 
     /**
-     * <p>Creates a connection to given peer and
-     * inits a timer that is constantly checking if
-     * connection is still active.</p>
+     * <p>Used to just send messages to peer,
+     * when no connection is established yet.</p>
      * @param peer  peer to open connection with
      */
     public Connection (Peer peer) {
@@ -105,6 +106,18 @@ public class Connection {
     }
 
     /**
+     * <p>Sending a message to given connection.</p>
+     * @param message   {@link Message} to send
+     */
+    public void sendMessage (Message message) {
+        if (valid) {
+            writer.println(message.toString());
+        } else {
+            System.err.println("> [" + new Date().toString() + "] Can not send message: " + message.getText());
+        }
+    }
+
+    /**
      * <p>Sending a poke to this connection
      * with my own peer data.</p>
      * @param application   application
@@ -132,18 +145,6 @@ public class Connection {
             socket.close();
         } catch (IOException e) {
             System.err.println("Error: Connection couldn't be terminated properly.");
-        }
-    }
-
-    /**
-     * <p>Sending a message to given connection.</p>
-     * @param message   {@link Message} to send
-     */
-    public void sendMessage (Message message) {
-        if (valid) {
-            writer.println(message.toString());
-        } else {
-            System.err.println("> [" + new Date().toString() + "] Can not send message: " + message.getText());
         }
     }
 

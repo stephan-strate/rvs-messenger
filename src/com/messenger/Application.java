@@ -157,8 +157,7 @@ public class Application {
                     // add peer to peer list
                     connections.add(newPeer);
 
-                    System.out.println("> [" + new Date().toString() + "] " + newPeer.getPeer().getName() + " (" + newPeer.getPeer().getHostName() +
-                            ":" + newPeer.getPeer().getPort() + ") is online.");
+                    System.out.println("> [" + new Date().toString() + "] " + newPeer.getPeer().getName() + " (" + newPeer.getPeer().getHostName() + ":" + newPeer.getPeer().getPort() + ") is online.");
                     break;
                 }
 
@@ -220,7 +219,7 @@ public class Application {
             System.err.println("> [" + new Date().toString() + "] Valid adress expected. " +
                     "The client you tried to message may have gone offline.");
         } else {
-            if (message.hasText()) {
+            if (message.hasText() && temp.hasName()) {
                 System.out.println("> [" + new Date().toString() + "] You -> " + temp.getName() + ": " + message.getText());
             }
         }

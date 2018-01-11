@@ -25,10 +25,20 @@ public class Main {
                 // parse port to int
                 int port = Integer.parseInt(args[1]);
 
-                // start application/program
-                Application application = new Application(port, name);
+                if (port > 1023 && port < 49152) {
+                    // start application/program
+                    new Application(port, name);
+                } else {
+                    throw new IllegalArgumentException();
+                }
             } catch (NumberFormatException e) {
                 System.err.println("Fatal Error: Port must be a valid number.\n" +
+                        "Example: messenger.jar Jon 6734");
+
+                // terminate application with errors
+                System.exit(1);
+            } catch (IllegalArgumentException e) {
+                System.err.println("Fatal Error: Port needs to be between 1024 and 49151.\n" +
                         "Example: messenger.jar Jon 6734");
 
                 // terminate application with errors
